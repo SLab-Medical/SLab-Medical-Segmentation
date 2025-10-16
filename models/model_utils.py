@@ -82,7 +82,7 @@ def get_model(args):
                 'num_heads': args.model.num_heads,
                 'depths': args.model.depths,
                 'num_classes': args.model.num_classes,
-                'decoder_head_embedding_dim': args.model.decoder_head_embedding_dim,
+                'decoder_head_embedding_dim': args.model.decoder_head_embedding_dim*(int(128/args.dataset.patch_size[0])**3),
                 'decoder_dropout': args.model.decoder_dropout
             })
 

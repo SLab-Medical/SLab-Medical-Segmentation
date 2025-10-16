@@ -71,6 +71,7 @@ class liuxiangyue(torch.utils.data.Dataset):
             # tio.Resample((1, 1, 1)),  # to 1 mm iso
 
             RescaleIntensity(out_min_max=(0, 1)),
+            CropOrPad((128, 128, 128)),
             # ZNormalization(),
         ])
 
