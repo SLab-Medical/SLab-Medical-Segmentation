@@ -1,0 +1,17 @@
+model:
+  model_name: segformer3d
+  dimension: 3d
+
+  in_channels: 1
+  num_classes: 1
+  
+  sr_ratios: [4, 2, 1, 1]
+  embed_dims: [32, 64, 160, 256]
+  patch_kernel_size: [7, 3, 3, 3]
+  patch_stride: [4, 2, 2, 2]
+  patch_padding: [3, 1, 1, 1]
+  mlp_ratios: [4, 4, 4, 4]
+  num_heads: [1, 2, 5, 8]
+  depths: [2, 2, 2, 2]
+  decoder_dropout: 0.0
+  decoder_head_embedding_dim: 256

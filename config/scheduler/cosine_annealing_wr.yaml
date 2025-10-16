@@ -1,0 +1,8 @@
+schedulers:
+  scheduler_type: cosine_annealing_wr
+  warmup: True
+  warmup_epoch: 20
+  
+  sche_t_0_epochs: 400
+  sche_t_mult: 1
+  sche_min_lr: 0.000006

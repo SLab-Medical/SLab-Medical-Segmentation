@@ -1,0 +1,9 @@
+model:
+  model_name: segmamba
+  dimension: 3d
+
+  in_channels: 1
+  num_classes: 1
+  
+  depths: [2, 2, 2, 2]
+  feat_size: [48, 96, 192, 384]

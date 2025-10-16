@@ -1,0 +1,22 @@
+loss_group:
+  loss_type: combined
+  configs:
+    - type: dice
+      params:
+        include_background: false
+        to_onehot_y: true
+        sigmoid: true
+        softmax: false
+        squared_pred: false
+        jaccard: false
+        smooth_nr: 0.00001
+        smooth_dr: 0.00001
+        weight: null
+    - type: focal
+      params:
+        include_background: false
+        to_onehot_y: true
+        alpha: 0.25
+        gamma: 2.0
+        weight: null
+  balanced_weights: [1,1]  
