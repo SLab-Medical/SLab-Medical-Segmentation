@@ -135,3 +135,10 @@ logs
 .hypothesis
 
 third_party/
+
+
+run.sh
+
+train_bak.py
+
+README_bak.md
