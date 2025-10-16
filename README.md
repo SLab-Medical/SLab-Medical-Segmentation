@@ -8,6 +8,8 @@ A general medical segmentation toolkit developed by the SLab team, led by Prof. 
 
 ## Table of Contents
 Follow steps 1-3 to run our toolkit. 
+
+1. [Introduction](#Introduction)
 1. [Installation](#Installation) 
 2. [Prepare the Dataset](#Prepare-the-Dataset)
 3. [Run the Experiment](#Run-the-Experiment)
@@ -16,7 +18,18 @@ Follow steps 1-3 to run our toolkit.
 6. [To Do List](#TODO)
 7. [Acknowledgements](#Acknowledgements)
 
-## Installation
+## Introduction
+
+Support networks:
+
+* [Segformer3D](https://arxiv.org/abs/2404.10156) (CVPR-W 2024, [code](https://github.com/OSUPCVLab/SegFormer3D)) 
+* [Slim-UNETR](https://ieeexplore.ieee.org/document/10288609) (TMI 2023, [code](https://github.com/deepang-ai/Slim-UNETR)) 
+* [SegMamba](https://arxiv.org/pdf/2401.13560) (ICCV2025, [code](https://github.com/ge-xing/SegMamba))
+
+Support dataset:
+* 
+* 
+
 
 
 ## Prepare the Dataset
