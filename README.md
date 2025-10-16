@@ -13,6 +13,8 @@ Follow steps 1-3 to run our toolkit.
 3. [Run the Experiment](#Run-the-Experiment)
 4. [Visualization](#Visualization)
 5. [Results](#Results)
+6. [To Do List](#TODO)
+7. [Acknowledgements](#Acknowledgements)
 
 ## Installation
 
@@ -28,3 +30,8 @@ We benchmark SLab Medical Segmentation (SMS) both qualitatively and quantitative
 
 ### Brain Tumor Segmentation Dataset (BraTs)
 
+
+
+## TODO
+
+## Acknowledgements
