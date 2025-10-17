@@ -107,7 +107,81 @@ def get_model(args):
                         r=args.model.r,
                         dropout=args.model.dropout,
                         )
-        
+        elif args.model.model_name == 'EfficientMedNeXt_T':
+            from .three_d.MedNeXt.mednextv1.create_efficient_mednext import create_efficient_mednext
+            return create_efficient_mednext(
+                    args.model.in_channels, 
+                    args.model.out_channels, 
+                    'T', 
+                    n_channels=args.model.feature_size,
+                    kernel_sizes=args.model.kernel_sizes,
+                    strides=args.model.strides,
+                    uniform_dec_channels=args.model.n_decoder_channels,
+                    deep_supervision=args.ds
+                )
+        elif args.model.model_name == 'EfficientMedNeXt_S':
+            from .three_d.MedNeXt.mednextv1.create_efficient_mednext import create_efficient_mednext
+            return create_efficient_mednext(
+                    args.model.in_channels, 
+                    args.model.out_channels, 
+                    'S', 
+                    n_channels=args.model.feature_size,
+                    kernel_sizes=args.model.kernel_sizes,
+                    strides=args.model.strides,
+                    uniform_dec_channels=args.model.n_decoder_channels,
+                    deep_supervision=args.ds
+                )
+        elif args.model.model_name == 'EfficientMedNeXt_M':
+            from .three_d.MedNeXt.mednextv1.create_efficient_mednext import create_efficient_mednext
+            return create_efficient_mednext(
+                    args.model.in_channels, 
+                    args.model.out_channels, 
+                    'M', 
+                    n_channels=args.model.feature_size,
+                    kernel_sizes=args.model.kernel_sizes,
+                    strides=args.model.strides,
+                    uniform_dec_channels=args.model.n_decoder_channels,
+                    deep_supervision=args.ds
+                )
+        elif args.model.model_name == 'EfficientMedNeXt_L':
+            from .three_d.MedNeXt.mednextv1.create_efficient_mednext import create_efficient_mednext
+            return create_efficient_mednext(
+                    args.model.in_channels, 
+                    args.model.out_channels, 
+                    'L', 
+                    n_channels=args.model.feature_size,
+                    kernel_sizes=args.model.kernel_sizes,
+                    strides=args.model.strides,
+                    uniform_dec_channels=args.model.n_decoder_channels,
+                    deep_supervision=args.model.deep_supervision
+                )
+
+        elif args.model.model_name == '3DUXNET':
+            from .three_d.UXNet_3D.network_backbone import UXNET
+            return UXNET(
+                    in_chans=args.model.in_channels,
+                    out_chans=args.model.out_channels,
+                    depths=args.model.depths,
+                    feat_size=args.model.feat_size,
+                    drop_path_rate=args.model.drop_path_rate,
+                    layer_scale_init_value=args.model.layer_scale_init_value,
+                    spatial_dims=args.model.spatial_dims,
+                )
+
+        elif args.model.model_name == '3DUXNET_pretrain':
+            from .three_d.UXNet_3D.network_backbone import UXNET
+            model = UXNET(
+                    in_chans=args.model.in_channels,
+                    out_chans=args.model.pretrain_classes,
+                    depths=args.model.depths,
+                    feat_size=args.model.feat_size,
+                    drop_path_rate=args.model.drop_path_rate,
+                    layer_scale_init_value=args.model.layer_scale_init_value,
+                    spatial_dims=args.model.spatial_dims,
+                )
+            model.load_state_dict(torch.load(args.model.pretrained_weights))
+            model.out = UnetOutBlock(spatial_dims=args.model.spatial_dims, in_channels=args.model.in_channels, out_channels=args.model.out_channels)
+            return model
 
 
         elif args.model == 'unet':

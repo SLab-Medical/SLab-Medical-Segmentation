@@ -171,7 +171,8 @@ def train(args):
                 
 
                 result = model(img)
-
+                if isinstance(result, (list, tuple)):
+                    result = result[0]
                 loss = loss_fn(result, label)
 
                 accelerator.backward(loss)
