@@ -26,6 +26,8 @@ Support networks:
 * [Slim-UNETR](https://ieeexplore.ieee.org/document/10288609) (TMI 2023, [code](https://github.com/deepang-ai/Slim-UNETR)) 
 * [SegMamba](https://arxiv.org/pdf/2401.13560) (ICCV2025, [code](https://github.com/ge-xing/SegMamba))
 * EfficientMedNext
+* 3DUXNET
+
 
 Support dataset:
 * 
