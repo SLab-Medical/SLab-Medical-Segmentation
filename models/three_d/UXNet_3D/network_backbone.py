@@ -20,12 +20,58 @@ from monai.networks.blocks.dynunet_block import UnetBasicBlock, UnetResBlock, ge
 from monai.networks.blocks.dynunet_block import UnetOutBlock
 from monai.networks.blocks.unetr_block import UnetrBasicBlock, UnetrUpBlock
 from typing import Union
-from lib.utils.tools.logger import Logger as Log
-from lib.models.tools.module_helper import ModuleHelper
-from networks.UXNet_3D.uxnet_encoder import uxnet_conv
+from models.three_d.UXNet_3D.uxnet_encoder import uxnet_conv
 
-import logging
-logger = logging.getLogger(__name__)
+class ModuleHelper(object):
+
+    @staticmethod
+    def BNReLU(num_features, bn_type=None, **kwargs):
+        if bn_type == 'torchbn':
+            return nn.Sequential(
+                nn.BatchNorm3d(num_features, **kwargs),
+                nn.ReLU()
+            )
+        elif bn_type == 'torchsyncbn':
+            return nn.Sequential(
+                nn.SyncBatchNorm(num_features, **kwargs),
+                nn.ReLU()
+            )
+        elif bn_type == 'syncbn':
+            from lib.extensions.syncbn.module import BatchNorm2d
+            return nn.Sequential(
+                BatchNorm2d(num_features, **kwargs),
+                nn.ReLU()
+            )
+        elif bn_type == 'sn':
+            from lib.extensions.switchablenorms.switchable_norm import SwitchNorm2d
+            return nn.Sequential(
+                SwitchNorm2d(num_features, **kwargs),
+                nn.ReLU()
+            )
+        elif bn_type == 'gn':
+            return nn.Sequential(
+                nn.GroupNorm(num_groups=8, num_channels=num_features, **kwargs),
+                nn.ReLU()
+            )
+        elif bn_type == 'fn':
+            Log.error('Not support Filter-Response-Normalization: {}.'.format(bn_type))
+            exit(1)
+        elif bn_type == 'inplace_abn':
+            torch_ver = torch.__version__[:3]
+            # Log.info('Pytorch Version: {}'.format(torch_ver))
+            if torch_ver == '0.4':
+                from lib.extensions.inplace_abn.bn import InPlaceABNSync
+                return InPlaceABNSync(num_features, **kwargs)
+            elif torch_ver in ('1.0', '1.1'):
+                from lib.extensions.inplace_abn_1.bn import InPlaceABNSync
+                return InPlaceABNSync(num_features, **kwargs)
+            elif torch_ver == '1.2':
+                from inplace_abn import InPlaceABNSync
+                return InPlaceABNSync(num_features, **kwargs)
+
+        else:
+            Log.error('Not support BN type: {}.'.format(bn_type))
+            exit(1)
 
 
 def np2th(weights, conv=False):

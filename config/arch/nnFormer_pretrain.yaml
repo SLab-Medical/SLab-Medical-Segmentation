@@ -1,0 +1,9 @@
+model:
+  model_name: nnFormer
+  dimension: 3d
+
+  in_channels: 1
+  out_channels: 1
+
+  pretrain_classes: 5
+  pretrained_weights: xxx

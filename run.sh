@@ -11,5 +11,8 @@ python train.py --dataset_name your_dataset_name \
                 --model_name your_model_name \
                 --in_channels 1 \
                 --out_channels 3 \
-                --loss_type combine \
-                
+                --loss_type combine 
+
+
+
+python train.py --model_name 3DUXNET 

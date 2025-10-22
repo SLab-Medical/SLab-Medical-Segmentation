@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import pdb
+from monai.networks.blocks import UnetOutBlock
 
 def get_model(args):
     
@@ -182,6 +183,121 @@ def get_model(args):
             model.load_state_dict(torch.load(args.model.pretrained_weights))
             model.out = UnetOutBlock(spatial_dims=args.model.spatial_dims, in_channels=args.model.in_channels, out_channels=args.model.out_channels)
             return model
+
+        elif args.model.model_name == 'TransBTS':
+            from .three_d.TransBTS.TransBTS.TransBTS_downsample8x_skipconnection import TransBTS
+            return TransBTS(
+                    num_channels=args.model.in_channels,
+                    num_classes=args.model.out_channels,
+                    img_dim=args.dataset.patch_size[0],
+                    patch_dim=args.model.patch_dim,
+                    embedding_dim=args.model.embedding_dim,
+                    num_heads=args.model.num_heads,
+                    num_layers=args.model.num_layers,
+                    hidden_dim=args.model.hidden_dim,
+                    dropout_rate=args.model.dropout_rate,
+                    attn_dropout_rate=args.model.attn_dropout_rate,
+                    _conv_repr=args.model._conv_repr,
+                    _pe_type=args.model._pe_type,
+                )[1]
+
+        elif args.model.model_name == 'TransBTS_pretrain':
+            from .three_d.TransBTS.TransBTS.TransBTS_downsample8x_skipconnection import TransBTS
+            model = TransBTS(
+                    num_channels=args.model.in_channels,
+                    num_classes=args.model.out_channels,
+                    img_dim=args.dataset.patch_size[0],
+                    patch_dim=args.model.patch_dim,
+                    embedding_dim=args.model.embedding_dim,
+                    num_heads=args.model.num_heads,
+                    num_layers=args.model.num_layers,
+                    hidden_dim=args.model.hidden_dim,
+                    dropout_rate=args.model.dropout_rate,
+                    attn_dropout_rate=args.model.attn_dropout_rate,
+                    _conv_repr=args.model._conv_repr,
+                    _pe_type=args.model._pe_type,
+                )[1]
+            model.load_state_dict(torch.load(args.model.pretrained_weights))
+            model.endconv = nn.Conv3d(512 // 32, args.model.out_channels, kernel_size=1)
+            return model
+
+        elif args.model.model_name == 'nnFormer':
+            from .three_d.nnFormer.nnFormer_seg import nnFormer
+            model = nnFormer(input_channels=args.model.in_channels, 
+                    num_classes=args.model.out_channels)
+            return model
+        elif args.model.model_name == 'nnFormer_ptrtrain':
+            from .three_d.nnFormer.nnFormer_seg import nnFormer
+            from .three_d.nnFormer.nnFormer_seg import final_patch_expanding
+            import torch.nn as nn
+            final_layer = []
+            model = nnFormer(input_channels=args.model.in_channels, 
+                    num_classes=args.model.pretrain_classes)
+
+            model.load_state_dict(torch.load(args.mdoel.pretrained_weights))
+            final_layer.append(final_patch_expanding(192, args.model.out_channels, patch_size=[2,4,4]))
+            model.final = nn.ModuleList(final_layer)
+            return model
+
+
+        elif args.model.model_name == 'nnUnet':
+            from .three_d.nnunet.network_architecture.generic_UNet import Generic_UNet
+            model = Generic_UNet(
+                input_channels=args.model.in_channels, 
+                base_num_features=args.model.base_num_features, 
+                num_classes=args.model.out_channels, 
+                num_pool=args.model.num_pool, 
+                num_conv_per_stage=args.model.num_conv_per_stage,
+                conv_op=nn.Conv3d,
+                norm_op=nn.BatchNorm3d,
+                dropout_op=nn.Dropout3d,
+                max_num_features=args.model.max_num_features,
+                deep_supervision=args.model.deep_supervision,
+            )
+            return model
+
+        elif args.model.model_name == 'unetr_pp':
+            from .three_d.unetr_pp.synapse.unetr_pp_synapse import UNETR_PP
+            model = UNETR_PP(
+                in_channels=args.model.in_channels,
+                out_channels=args.model.out_channels,
+                img_size=args.dataset.patch_size[0],
+                feature_size=args.model.feature_size, 
+                hidden_size=args.model.hidden_size,
+                dims=args.model.dims,
+                num_heads=args.model.num_heads,
+                pos_embed=args.model.pos_embed,
+                norm_name=args.model.norm_name,
+                dropout_rate=args.model.dropout_rate,
+                do_ds=args.model.do_ds
+            )
+            return model
+
+        elif args.model.model_name == 'SwinUNETR':
+            from .three_d.swin_unetr.swin_unetr import SwinUNETR
+            model = SwinUNETR(
+                img_size=args.dataset.patch_size[0],
+                in_channels=args.model.in_channels, #1
+                out_channels=args.model.out_channels,
+                feature_size=args.model.feature_size, #48
+                use_checkpoint=False,
+            )
+            return model
+
+        elif args.model.model_name == 'SwinUNETR_pretrain':
+            from .three_d.swin_unetr.swin_unetr import SwinUNETR
+            from monai.networks.blocks import UnetOutBlock
+            model = SwinUNETR(
+                img_size=args.dataset.patch_size[0],
+                in_channels=args.model.in_channels, #1
+                out_channels=args.model.pretrain_classes,
+                feature_size=args.model.feature_size, #48
+                use_checkpoint=False,
+            )
+            model.load_state_dict(torch.load(args.model.pretrained_weights))
+            model.out = UnetOutBlock(spatial_dims=3, in_channels=48, out_channels=args.model.out_channels)
+            return model
+
 
 
         elif args.model == 'unet':
