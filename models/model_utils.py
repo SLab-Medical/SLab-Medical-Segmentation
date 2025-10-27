@@ -300,9 +300,19 @@ def get_model(args):
 
 
 
+        elif args.model == 'vnet':
+            from .three_d.VNet import vnet
+            return vnet(args.model.in_channels, args.model.out_channels, scale=args.model.downsample_scale, baseChans=args.model.base_chan)
+        
         elif args.model == 'unet':
-            from .three_d import UNet
-            return UNet(args.in_chan, args.base_chan, num_classes=args.classes, scale=args.down_scale, norm=args.norm, kernel_size=args.kernel_size, block=args.block)
+            from .three_d.UNet import unet
+            return unet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
+            
+
+
+
+
+
         elif args.model == 'unet++':
             from .dim3 import UNetPlusPlus
             return UNetPlusPlus(args.in_chan, args.base_chan, num_classes=args.classes, scale=args.down_scale, norm=args.norm, kernel_size=args.kernel_size, block=args.block)
