@@ -82,7 +82,7 @@ def get_model(args):
                 'mlp_ratios': args.model.mlp_ratios,
                 'num_heads': args.model.num_heads,
                 'depths': args.model.depths,
-                'num_classes': args.model.num_classes,
+                'num_classes': args.model.out_channels,
                 'decoder_head_embedding_dim': args.model.decoder_head_embedding_dim*(int(128/args.dataset.patch_size[0])**3),
                 'decoder_dropout': args.model.decoder_dropout
             })
@@ -92,7 +92,7 @@ def get_model(args):
         elif args.model.model_name == 'segmamba':
             from .three_d.segmamba.segmamba import SegMamba
             return SegMamba(in_chans=args.model.in_channels,
-                        out_chans=args.model.num_classes,
+                        out_chans=args.model.out_channels,
                         depths=args.model.depths,
                         feat_size=args.model.feat_size,)
 

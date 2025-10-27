@@ -63,7 +63,7 @@ class TrainOptions():
         model.add_argument("--model_name", type=str, default='TransBTS', help='checkpoints directory name')
         model.add_argument("--dimension", type=str, default='3d', help='model dimension')
         model.add_argument("--in_channels", type=int, default=1, help='in_channels')
-        model.add_argument("--num_classes", type=int, default=1, help='num_classes')
+        model.add_argument("--out_channels", type=int, default=1, help='out_channels')
 
 
         # Loss options
