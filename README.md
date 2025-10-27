@@ -32,6 +32,13 @@ Support networks:
 * nnUnet
 * unetr_pp
 * SwinUNETR
+* vnet
+* unet
+* unet++
+* attention_unet
+* medformer
+* unetr
+* vtunet
 
 
 Support dataset:
