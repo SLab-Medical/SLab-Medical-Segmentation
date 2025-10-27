@@ -1,0 +1,26 @@
+model:
+  model_name: VTUNET
+  dimension: 3d
+
+  in_channels: 1
+  out_channels: 1
+
+  patch_size: [4,4,4]
+  embed_dim: 96
+  depths: [2, 2, 2, 1]
+  depths_decoder: [1, 2, 2, 2]
+  num_heads: [3, 6, 12, 24]
+  window_size: (7, 7, 7)
+  mlp_ratio: 4.
+  qkv_bias: True
+  qk_scale: None
+  drop_rate: 0.
+  attn_drop_rate: 0.
+  drop_path_rate: 0.1
+  norm_layer: nn.LayerNorm
+  patch_norm: True
+  use_checkpoint: False
+  frozen_stages: -1
+  final_upsample: "expand_first"
+
+  pretrained_weights: xxx

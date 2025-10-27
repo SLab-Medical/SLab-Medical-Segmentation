@@ -301,55 +301,85 @@ def get_model(args):
 
 
         elif args.model == 'vnet':
-            from .three_d.VNet import vnet
-            return vnet(args.model.in_channels, args.model.out_channels, scale=args.model.downsample_scale, baseChans=args.model.base_chan)
+            from .three_d.VNet.vnet import VNet
+            return VNet(args.model.in_channels, args.model.out_channels, scale=args.model.downsample_scale, baseChans=args.model.base_chan)
         
         elif args.model == 'unet':
-            from .three_d.UNet import unet
-            return unet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
+            from .three_d.UNet.unet import UNet
+            return UNet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
             
-
-
-
-
-
         elif args.model == 'unet++':
-            from .dim3 import UNetPlusPlus
-            return UNetPlusPlus(args.in_chan, args.base_chan, num_classes=args.classes, scale=args.down_scale, norm=args.norm, kernel_size=args.kernel_size, block=args.block)
+            from .three_d.UNetPP.unetpp import UNetPlusPlus
+            return UNetPlusPlus(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
+
+
+
         elif args.model == 'attention_unet':
-            from .dim3 import AttentionUNet
-            return AttentionUNet(args.in_chan, args.base_chan, num_classes=args.classes, scale=args.down_scale, norm=args.norm, kernel_size=args.kernel_size, block=args.block)
+            from .three_d.Attention_Unet.attention_unet import AttentionUNet
+            return AttentionUNet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
 
         elif args.model == 'medformer':
-            from .dim3 import MedFormer
+            from .three_d.MedFormer.medformer import MedFormer
 
-            return MedFormer(args.in_chan, args.classes, args.base_chan, map_size=args.map_size, conv_block=args.conv_block, conv_num=args.conv_num, trans_num=args.trans_num, num_heads=args.num_heads, fusion_depth=args.fusion_depth, fusion_dim=args.fusion_dim, fusion_heads=args.fusion_heads, expansion=args.expansion, attn_drop=args.attn_drop, proj_drop=args.proj_drop, proj_type=args.proj_type, norm=args.norm, act=args.act, kernel_size=args.kernel_size, scale=args.down_scale, aux_loss=args.aux_loss)
+            return MedFormer(args.model.in_channels, args.model.out_channels, args.model.base_chan, map_size=args.model.map_size, conv_block=args.model.conv_block, conv_num=args.model.conv_num, trans_num=args.model.trans_num, num_heads=args.model.num_heads, fusion_depth=args.model.fusion_depth, fusion_dim=args.model.fusion_dim, fusion_heads=args.model.fusion_heads, expansion=args.model.expansion, attn_drop=args.model.attn_drop, proj_drop=args.model.proj_drop, proj_type=args.model.proj_type, norm=args.model.norm, act=args.model.act, kernel_size=args.model.kernel_size, scale=args.model.down_scale)
     
+
         elif args.model == 'unetr':
-            from .dim3 import UNETR
-            model = UNETR(args.in_chan, args.classes, args.training_size, feature_size=16, hidden_size=768, mlp_dim=3072, num_heads=12, pos_embed='perceptron', norm_name='instance', res_block=True)
+            from .three_d.unetr.unetr import UNETR
+            model = UNETR(args.model.in_channels, args.model.out_channels, args.dataset.patch_size, feature_size=args.model.feature_size, hidden_size=args.model.hidden_size, mlp_dim=args.model.mlp_dim, num_heads=args.model.num_heads, pos_embed=args.model.pos_embed, norm_name=args.model.norm_name, res_block=args.model.res_block)
             
             return model
         elif args.model == 'vtunet':
-            from .dim3 import VTUNet
-            model = VTUNet(args, args.classes)
-
-            if pretrain:
-                model.load_from(args)
+            from .three_d.VTUNET.vtunet import SwinTransformerSys3D
+            model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
+                                            patch_size=args.model.patch_size,
+                                            in_chans=args.model.in_channels,
+                                            num_classes=args.model.out_channels,
+                                            embed_dim=args.model.embed_dim,
+                                            depths=args.model.depths,
+                                            depths_decoder=args.model.depths_decoder,
+                                            num_heads=args.model.num_heads,
+                                            window_size=args.model.window_size,
+                                            mlp_ratio=args.model.mlp_ratio,
+                                            qkv_bias=args.model.qkv_bias,
+                                            qk_scale=args.model.qk_scale,
+                                            drop_rate=args.model.drop_rate,
+                                            attn_drop_rate=args.model.attn_drop_rate,
+                                            drop_path_rate=args.model.drop_path_rate,
+                                            norm_layer=args.model.norm_layer,
+                                            patch_norm=args.model.patch_norm,
+                                            use_checkpoint=args.model.use_checkpoint,
+                                            frozen_stages=args.model.frozen_stages,
+                                            final_upsample=args.model.final_upsample)
             return model
-        elif args.model == 'swin_unetr':
-            from .dim3 import SwinUNETR
-            model = SwinUNETR(args.window_size, args.in_chan, args.classes, feature_size=args.base_chan)
 
-            if args.pretrain:
-                weights = torch.load('/research/cbim/vast/yg397/ConvFormer/ConvFormer/initmodel/model_swinvit.pt')
-                model.load_from(weights=weights)
+        elif args.model == 'vtunet_pretrain':
+            from .three_d.VTUNET.vtunet import SwinTransformerSys3D
+            model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
+                                            patch_size=args.model.patch_size,
+                                            in_chans=args.model.in_channels,
+                                            num_classes=args.model.out_channels,
+                                            embed_dim=args.model.embed_dim,
+                                            depths=args.model.depths,
+                                            depths_decoder=args.model.depths_decoder,
+                                            num_heads=args.model.num_heads,
+                                            window_size=args.model.window_size,
+                                            mlp_ratio=args.model.mlp_ratio,
+                                            qkv_bias=args.model.qkv_bias,
+                                            qk_scale=args.model.qk_scale,
+                                            drop_rate=args.model.drop_rate,
+                                            attn_drop_rate=args.model.attn_drop_rate,
+                                            drop_path_rate=args.model.drop_path_rate,
+                                            norm_layer=args.model.norm_layer,
+                                            patch_norm=args.model.patch_norm,
+                                            use_checkpoint=args.model.use_checkpoint,
+                                            frozen_stages=args.model.frozen_stages,
+                                            final_upsample=args.model.final_upsample)
+            model.load_state_dict(torch.load(args.mdoel.pretrained_weights))
 
+            # TODO https://github.com/yhygao/CBIM-Medical-Image-Segmentation/blob/main/model/dim3/vtunet.py
             return model
-        elif args.model == 'nnformer':
-            from .dim3 import nnFormer
-            model = nnFormer(args.window_size, input_channels=args.in_chan, num_classes=args.classes, deep_supervision=args.aux_loss)
 
-            return model
+
     else:
         raise ValueError('Invalid dimension, should be \'2d\' or \'3d\'')
