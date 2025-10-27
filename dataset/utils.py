@@ -11,3 +11,8 @@ def build_dataset(args, mode):
         from .liuxiangyue import liuxiangyue
 
         return liuxiangyue(args.dataset)
+    
+    elif args.dataset.dataset_name == 'brat':
+        from .brat import Brat
+
+        return Brat(args.dataset)
