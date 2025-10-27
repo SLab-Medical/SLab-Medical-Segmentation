@@ -71,14 +71,14 @@ def build_network(args):
 
     return net 
 
-def rebuild_scheduler(args, epoch, current_epoch, training_scheduler, warmup_scheduler):
+def rebuild_scheduler(args, current_epoch, training_scheduler, warmup_scheduler):
     """_summary_"""
     if args.schedulers.warmup:
-        if current_epoch == 0:
+        if current_epoch < args.schedulers.warmup_epoch:
             scheduler = warmup_scheduler
-        elif current_epoch == args.schedulers.warmup_epoch:
+        elif current_epoch >= args.schedulers.warmup_epoch:
             scheduler = training_scheduler
-    elif current_epoch == 0:
+    else:
         scheduler = training_scheduler
     return scheduler
 
@@ -154,7 +154,7 @@ def train(args):
 
         tic = time.time()
         iter_num_per_epoch = 0 
-        scheduler = rebuild_scheduler(args, epoch, epoch, training_scheduler, warmup_scheduler)
+        scheduler = rebuild_scheduler(args, epoch, training_scheduler, warmup_scheduler)
         for i, inputs in enumerate(trainLoader):
 
             with accelerator.accumulate(model):
