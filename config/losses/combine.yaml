@@ -3,7 +3,7 @@ loss_group:
   configs:
     - type: dice
       params:
-        include_background: false
+        include_background: true
         to_onehot_y: true
         sigmoid: false
         softmax: true
@@ -14,7 +14,7 @@ loss_group:
         weight: null
     - type: focal
       params:
-        include_background: false
+        include_background: true
         to_onehot_y: true
         alpha: 0.25
         gamma: 2.0
