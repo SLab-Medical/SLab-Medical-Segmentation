@@ -5,8 +5,8 @@ loss_group:
       params:
         include_background: false
         to_onehot_y: true
-        sigmoid: true
-        softmax: false
+        sigmoid: false
+        softmax: true
         squared_pred: false
         jaccard: false
         smooth_nr: 0.00001
