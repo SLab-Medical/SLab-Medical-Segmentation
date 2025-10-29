@@ -82,6 +82,33 @@ def rebuild_scheduler(args, current_epoch, training_scheduler, warmup_scheduler)
         scheduler = training_scheduler
     return scheduler
 
+def save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration):
+    os.makedirs(base_dir, exist_ok=True)
+    # save only the first item in the batch to limit IO
+    img_tensor = batch_inputs['source']['data'][0].detach().cpu().float()
+    lbl_tensor = batch_inputs['label']['data'][0].detach().cpu()
+
+    pred_logits = logits.detach().cpu()[0]
+    if pred_logits.shape[0] > 1:
+        # multi-class: argmax over channel
+        pred_tensor = torch.argmax(pred_logits, dim=0, keepdim=True).to(torch.int16)
+    else:
+        # binary: sigmoid then threshold
+        pred_tensor = (torch.sigmoid(pred_logits) > 0.5).to(torch.int16)
+
+    try:
+        affine = batch_inputs['source']['affine']
+    except Exception:
+        affine = np.eye(4)
+
+    img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.nii.gz")
+    gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.nii.gz")
+    pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.nii.gz")
+
+    tio.ScalarImage(tensor=img_tensor, affine=affine).save(img_path)
+    tio.LabelMap(tensor=lbl_tensor.to(torch.int16), affine=affine).save(gt_path)
+    tio.LabelMap(tensor=pred_tensor, affine=affine).save(pr_path)
+
 def train(args):
 
     ################################################################################
@@ -148,37 +175,6 @@ def train(args):
     elapsed_epochs = 0
     iteration = elapsed_epochs * len(trainLoader)
     
-    def _save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration):
-        try:
-            os.makedirs(base_dir, exist_ok=True)
-            # save only the first item in the batch to limit IO
-            img_tensor = batch_inputs['source']['data'][0].detach().cpu().float()
-            lbl_tensor = batch_inputs['label']['data'][0].detach().cpu()
-
-            pred_logits = logits.detach().cpu()[0]
-            if pred_logits.shape[0] > 1:
-                # multi-class: argmax over channel
-                pred_tensor = torch.argmax(pred_logits, dim=0, keepdim=True).to(torch.int16)
-            else:
-                # binary: sigmoid then threshold
-                pred_tensor = (torch.sigmoid(pred_logits) > 0.5).to(torch.int16)
-
-            try:
-                affine = batch_inputs['source']['affine']
-            except Exception:
-                affine = np.eye(4)
-
-            img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.nii.gz")
-            gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.nii.gz")
-            pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.nii.gz")
-
-            tio.ScalarImage(tensor=img_tensor, affine=affine).save(img_path)
-            tio.LabelMap(tensor=lbl_tensor.to(torch.int16), affine=affine).save(gt_path)
-            tio.LabelMap(tensor=pred_tensor, affine=affine).save(pr_path)
-        except Exception as e:
-            # best-effort saving; don't crash training
-            print(f"[Warn] Failed saving intermediate outputs: {e}")
-
     for epoch in range(args.experiment.start_epoch, args.experiment.num_epochs):
         
         model.train()
@@ -186,7 +182,6 @@ def train(args):
         tic = time.time()
         iter_num_per_epoch = 0 
         scheduler = rebuild_scheduler(args, epoch, training_scheduler, warmup_scheduler)
-        is_warmup = bool(args.schedulers.warmup) and (epoch < args.schedulers.warmup_epoch)
         for i, inputs in enumerate(trainLoader):
 
             with accelerator.accumulate(model):
@@ -215,8 +210,6 @@ def train(args):
 
                 tic = time.time()
                 
-
-                # Log total loss and per-component losses
                 if accelerator.is_main_process:
                     writer.add_scalar('Train/Loss/total', loss.item(), iteration + 1)
                     if hasattr(loss_fn, 'components'):
@@ -229,30 +222,22 @@ def train(args):
                 iteration += 1
 
 
-                # Step the appropriate scheduler
-                if not is_warmup:
-                    training_scheduler.step()
-
-                # Prepare lr for printing
-                current_lr = (warmup_scheduler.get_last_lr()[0] if is_warmup else training_scheduler.get_last_lr()[0])
-
-                # Print per-iteration losses
-                loss_msg = f"iter: {str(iteration).zfill(6)} | total: {loss.item():.5f} | lr: {current_lr:.6e}"
+                loss_msg = f"Epoch: {epoch+1:03d}/{args.experiment.num_epochs:03d} | \
+                            iter: {str(iteration).zfill(6)} | \
+                            total: {loss.item():.5f} | \
+                            lr: {training_scheduler.get_last_lr()[0]:.6e}"
                 if hasattr(loss_fn, 'components'):
                     comps = loss_fn.components()
                     comp_str = ' | '.join([f"{k}: {float(v.item()):.5f}" for k, v in comps.items()])
                     loss_msg = loss_msg + ' | ' + comp_str
                 accelerator.print(loss_msg)
 
-                # Save intermediate results periodically using TorchIO
                 if accelerator.is_main_process and (iteration % max(1, args.experiment.vis_every) == 0):
                     inter_dir = os.path.join(args.experiment.log_path, 'intermediate')
-                    _save_intermediate_tio(inputs, result, inter_dir, epoch, iteration)
+                    save_intermediate_tio(inputs, result, inter_dir, epoch, iteration)
 
-            # epoch-level warmup step
-            # (only once per epoch so warmup scales by epoch count)
-        if is_warmup:
-            warmup_scheduler.step()
+
+            scheduler.step()
 
 
             if args.ema_group.ema and (epoch % args.ema_group.val_ema_every == 0):
