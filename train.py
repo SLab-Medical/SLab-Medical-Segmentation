@@ -96,11 +96,7 @@ def save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration):
         # binary: sigmoid then threshold
         pred_tensor = (torch.sigmoid(pred_logits) > 0.5).to(torch.int16)
 
-    try:
-        affine = batch_inputs['source']['affine']
-    except Exception:
-        affine = np.eye(4)
-
+    affine = np.eye(4)
     img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.nii.gz")
     gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.nii.gz")
     pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.nii.gz")
