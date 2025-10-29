@@ -51,22 +51,35 @@ class SegmentationLossManager:
     
     def create_combined_loss(self, loss_configs: list, weights_list: list) -> 'CombinedLoss':
         losses = []
+        names = []
         for config in loss_configs:
             losses.append(self.create_loss(config))
+            names.append(config.get('type', 'loss'))
         
-        return CombinedLoss(losses, weights_list)
+        return CombinedLoss(losses, weights_list, names)
     
 
 
 class CombinedLoss(nn.Module):
-    def __init__(self, losses: list, weights: list):
+    def __init__(self, losses: list, weights: list, names: list = None):
         super().__init__()
         self.losses = nn.ModuleList(losses)
         self.weights = weights
+        self.names = names if names is not None else [l.__class__.__name__.lower() for l in losses]
+        self.last_components = {}
         
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         total_loss = 0.0
-        for loss_fn, weight in zip(self.losses, self.weights):
+        components = {}
+        for name, loss_fn, weight in zip(self.names, self.losses, self.weights):
             loss_value = loss_fn(input, target)
+            components[name] = loss_value
             total_loss += weight * loss_value
+        # cache last unweighted component values for logging
+        self.last_components = components
         return total_loss
+
+    @torch.no_grad()
+    def components(self) -> dict:
+        """Return the last computed unweighted component losses as a dict."""
+        return {k: v.detach() if torch.is_tensor(v) else v for k, v in self.last_components.items()}
