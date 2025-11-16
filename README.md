@@ -39,11 +39,10 @@ Support networks:
 * nnUnet
 * vnet
 * medformer
-
-----
-
-
 * [TransBTS](https://arxiv.org/abs/2103.04430) (MICCAI2021, [code](https://github.com/Rubics-Xuan/TransBTS))
+
+
+
 
 
 
