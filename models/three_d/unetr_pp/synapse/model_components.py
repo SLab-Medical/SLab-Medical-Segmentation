@@ -3,9 +3,9 @@ from timm.models.layers import trunc_normal_
 from typing import Sequence, Tuple, Union
 from monai.networks.layers.utils import get_norm_layer
 from monai.utils import optional_import
-from networks.unetr_pp.layers import LayerNorm
-from networks.unetr_pp.synapse.transformerblock import TransformerBlock
-from networks.unetr_pp.dynunet_block import get_conv_layer, UnetResBlock
+from models.three_d.unetr_pp.layers import LayerNorm
+from models.three_d.unetr_pp.synapse.transformerblock import TransformerBlock
+from models.three_d.unetr_pp.dynunet_block import get_conv_layer, UnetResBlock
 
 
 einops, _ = optional_import("einops")

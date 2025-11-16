@@ -69,7 +69,49 @@ def get_model(args):
 
 
     elif args.model.dimension == '3d':
-        if args.model.model_name == 'segformer3d':
+
+
+
+        if args.model.model_name == 'Unetr':
+            from .three_d.unetr.unetr import UNETR
+            model = UNETR(args.model.in_channels, 
+                          args.model.out_channels,
+                          args.dataset.patch_size,
+                          feature_size=args.model.feature_size, 
+                          hidden_size=args.model.hidden_size, 
+                          mlp_dim=args.model.mlp_dim, 
+                          num_heads=args.model.num_heads,
+                          proj_type=args.model.proj_type, 
+                          pos_embed_type=args.model.pos_embed_type, 
+                          norm_name=args.model.norm_name, 
+                          res_block=args.model.res_block)
+
+            return model
+        
+        elif args.model.model_name == 'UNet':
+            from .three_d.UNet.unet import UNet
+            return UNet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
+            
+        elif args.model.model_name == 'UNETR_PP':
+            from .three_d.unetr_pp.synapse.unetr_pp_synapse import UNETR_PP
+            model = UNETR_PP(
+                in_channels=args.model.in_channels,
+                out_channels=args.model.out_channels,
+                img_size=args.dataset.patch_size,
+                feature_size=args.model.feature_size, 
+                hidden_size=args.model.hidden_size,
+                dims=args.model.dims,
+                num_heads=args.model.num_heads,
+                pos_embed=args.model.pos_embed,
+                norm_name=args.model.norm_name,
+                dropout_rate=args.model.dropout_rate,
+                do_ds=args.model.do_ds
+            )
+            return model
+
+
+            
+        elif args.model.model_name == 'segformer3d':
             from .three_d.segformer.segformer import build_segformer3d_model
 
             return build_segformer3d_model({
@@ -86,8 +128,6 @@ def get_model(args):
                 'decoder_head_embedding_dim': args.model.decoder_head_embedding_dim*(int(128/args.dataset.patch_size[0])**3),
                 'decoder_dropout': args.model.decoder_dropout
             })
-
-
 
         elif args.model.model_name == 'segmamba':
             from .three_d.segmamba.segmamba import SegMamba
@@ -256,22 +296,7 @@ def get_model(args):
             )
             return model
 
-        elif args.model.model_name == 'unetr_pp':
-            from .three_d.unetr_pp.synapse.unetr_pp_synapse import UNETR_PP
-            model = UNETR_PP(
-                in_channels=args.model.in_channels,
-                out_channels=args.model.out_channels,
-                img_size=args.dataset.patch_size[0],
-                feature_size=args.model.feature_size, 
-                hidden_size=args.model.hidden_size,
-                dims=args.model.dims,
-                num_heads=args.model.num_heads,
-                pos_embed=args.model.pos_embed,
-                norm_name=args.model.norm_name,
-                dropout_rate=args.model.dropout_rate,
-                do_ds=args.model.do_ds
-            )
-            return model
+
 
         elif args.model.model_name == 'SwinUNETR':
             from .three_d.swin_unetr.swin_unetr import SwinUNETR
@@ -304,10 +329,7 @@ def get_model(args):
             from .three_d.VNet.vnet import VNet
             return VNet(args.model.in_channels, args.model.out_channels, scale=args.model.downsample_scale, baseChans=args.model.base_chan)
         
-        elif args.model == 'unet':
-            from .three_d.UNet.unet import UNet
-            return UNet(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
-            
+
         elif args.model == 'unet++':
             from .three_d.UNetPP.unetpp import UNetPlusPlus
             return UNetPlusPlus(args.model.in_channels, num_classes=args.model.out_channels, base_ch=args.model.base_chan, scale=args.model.down_scale, norm=args.model.norm, kernel_size=args.model.kernel_size, block=args.model.block)
@@ -324,11 +346,8 @@ def get_model(args):
             return MedFormer(args.model.in_channels, args.model.out_channels, args.model.base_chan, map_size=args.model.map_size, conv_block=args.model.conv_block, conv_num=args.model.conv_num, trans_num=args.model.trans_num, num_heads=args.model.num_heads, fusion_depth=args.model.fusion_depth, fusion_dim=args.model.fusion_dim, fusion_heads=args.model.fusion_heads, expansion=args.model.expansion, attn_drop=args.model.attn_drop, proj_drop=args.model.proj_drop, proj_type=args.model.proj_type, norm=args.model.norm, act=args.model.act, kernel_size=args.model.kernel_size, scale=args.model.down_scale)
     
 
-        elif args.model == 'unetr':
-            from .three_d.unetr.unetr import UNETR
-            model = UNETR(args.model.in_channels, args.model.out_channels, args.dataset.patch_size, feature_size=args.model.feature_size, hidden_size=args.model.hidden_size, mlp_dim=args.model.mlp_dim, num_heads=args.model.num_heads, pos_embed=args.model.pos_embed, norm_name=args.model.norm_name, res_block=args.model.res_block)
+
             
-            return model
         elif args.model == 'vtunet':
             from .three_d.VTUNET.vtunet import SwinTransformerSys3D
             model = SwinTransformerSys3D(img_size=args.dataset.patch_size,

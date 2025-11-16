@@ -1,5 +1,5 @@
 model:
-  model_name: UNETR_PP
+  model_name: Unetr
   dimension: 3d
 
   in_channels: 1
@@ -10,7 +10,8 @@ model:
   hidden_size: 768
   mlp_dim: 3072
   num_heads: 12
-  pos_embed: 'perceptron'
+  proj_type: 'perceptron'      
+  pos_embed_type: 'learnable'
   norm_name: 'instance'
   res_block: True
   

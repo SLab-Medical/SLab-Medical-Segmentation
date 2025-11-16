@@ -22,6 +22,14 @@ Follow steps 1-3 to run our toolkit.
 
 Support networks:
 
+
+* Unetr
+* unet
+
+
+----
+
+
 * [Segformer3D](https://arxiv.org/abs/2404.10156) (CVPR-W 2024, [code](https://github.com/OSUPCVLab/SegFormer3D)) 
 * [Slim-UNETR](https://ieeexplore.ieee.org/document/10288609) (TMI 2023, [code](https://github.com/deepang-ai/Slim-UNETR)) 
 * [SegMamba](https://arxiv.org/pdf/2401.13560) (ICCV2025, [code](https://github.com/ge-xing/SegMamba))
@@ -33,11 +41,9 @@ Support networks:
 * unetr_pp
 * SwinUNETR
 * vnet
-* unet
 * unet++
 * attention_unet
 * medformer
-* unetr
 * vtunet
 
 

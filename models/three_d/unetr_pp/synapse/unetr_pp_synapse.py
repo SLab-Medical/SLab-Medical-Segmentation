@@ -1,8 +1,8 @@
 from torch import nn
 from typing import Tuple, Union
-from networks.unetr_pp.neural_network import SegmentationNetwork
-from networks.unetr_pp.dynunet_block import UnetOutBlock, UnetResBlock
-from networks.unetr_pp.synapse.model_components import UnetrPPEncoder, UnetrUpBlock
+from models.three_d.unetr_pp.neural_network import SegmentationNetwork
+from models.three_d.unetr_pp.dynunet_block import UnetOutBlock, UnetResBlock
+from models.three_d.unetr_pp.synapse.model_components import UnetrPPEncoder, UnetrUpBlock
 
 
 class UNETR_PP(SegmentationNetwork):
@@ -57,11 +57,18 @@ class UNETR_PP(SegmentationNetwork):
             raise KeyError(f"Position embedding layer of type {pos_embed} is not supported.")
 
         #self.feat_size = (3, 3, 3,)
-        self.feat_size = (4, 4, 4,)
+        # self.feat_size = (4, 4, 4,)
+        self.patch_size = (2,2,2)
+
+        self.feat_size = (
+            img_size[0] // self.patch_size[0] // 8,  # 8 is the downsampling happened through the four encoders stages
+            img_size[1] // self.patch_size[1] // 8,  # 8 is the downsampling happened through the four encoders stages
+            img_size[2] // self.patch_size[2] // 8,  # 8 is the downsampling happened through the four encoders stages
+        )
+
         self.hidden_size = hidden_size
         #input_size=[24 * 24 * 24, 12 * 12 * 12, 6 * 6 * 6, 3 * 3 * 3]
         self.input_size=[32 * 32 * 32, 16 * 16 * 16, 8 * 8 * 8, 4 * 4 * 4]
-        self.patch_size = (3,3,3)
         
         self.unetr_pp_encoder = UnetrPPEncoder(input_size=self.input_size, dims=dims, depths=depths, num_heads=num_heads, in_channels=in_channels, patch_size=self.patch_size)
 

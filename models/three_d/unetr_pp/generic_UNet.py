@@ -18,8 +18,8 @@ from unetr_pp.utilities.nd_softmax import softmax_helper
 from torch import nn
 import torch
 import numpy as np
-from unetr_pp.network_architecture.initialization import InitWeights_He
-from unetr_pp.network_architecture.neural_network import SegmentationNetwork
+from models.three_d.unetr_pp.initialization import InitWeights_He
+from models.three_d.unetr_pp.neural_network import SegmentationNetwork
 import torch.nn.functional
 
 

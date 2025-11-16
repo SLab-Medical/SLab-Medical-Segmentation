@@ -13,7 +13,6 @@
 from typing import Tuple, Union
 import torch
 import torch.nn as nn
-
 from monai.networks.blocks.dynunet_block import UnetOutBlock
 from monai.networks.blocks import UnetrBasicBlock, UnetrPrUpBlock, UnetrUpBlock
 from monai.networks.nets import ViT
@@ -33,7 +32,8 @@ class UNETR(nn.Module):
         hidden_size: int = 768,
         mlp_dim: int = 3072,
         num_heads: int = 12,
-        pos_embed: str = "perceptron",
+        proj_type: str = "perceptron",
+        pos_embed_type: str = "learnable",
         norm_name: Union[Tuple, str] = "instance",
         conv_block: bool = False,
         res_block: bool = True,
@@ -68,8 +68,8 @@ class UNETR(nn.Module):
         if hidden_size % num_heads != 0:
             raise AssertionError("hidden size should be divisible by num_heads.")
 
-        if pos_embed not in ["conv", "perceptron"]:
-            raise KeyError(f"Position embedding layer of type {pos_embed} is not supported.")
+        if proj_type not in ["conv", "perceptron"]:
+            raise KeyError(f"Position embedding layer of type {proj_type} is not supported.")
 
         self.num_layers = 12
         self.patch_size = (16, 16, 16)
@@ -89,7 +89,8 @@ class UNETR(nn.Module):
             mlp_dim=mlp_dim,
             num_layers=self.num_layers,
             num_heads=num_heads,
-            pos_embed=pos_embed,
+            proj_type=proj_type,
+            pos_embed_type=pos_embed_type,
             classification=self.classification,
             dropout_rate=dropout_rate,
         )

@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from networks.unetr_pp.dynunet_block import UnetResBlock
+from models.three_d.unetr_pp.dynunet_block import UnetResBlock
 import math
 
 
