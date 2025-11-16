@@ -6,7 +6,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
 from einops import rearrange
-from mmcv.runner import load_checkpoint
 from timm.models.layers import DropPath, trunc_normal_
 import pdb
 
@@ -581,7 +580,6 @@ class SwinTransformerBlock3D(nn.Module):
         assert 0 <= self.shift_size[2] < self.window_size[2], "shift_size must in 0-window_size"
 
 
-
         self.norm1 = norm_layer(dim)
 
         self.attn = WindowAttention3D(
@@ -906,7 +904,8 @@ class PatchExpand_Up(nn.Module):
         # assert L == D * H * W, "input feature has wrong size"
 
 
-        x = x.view(B, 32 // self.D_ratio, H, W, C)
+        # x = x.view(B, 32 // self.D_ratio, H, W, C)
+        x = x.view(B, -1, H, W, C)
 
         x = rearrange(x, 'b d h w (p1 p2 c)-> b d (h p1) (w p2) c', p1=self.dim_scale, p2=self.dim_scale, c=C // 4)
 
@@ -1474,7 +1473,6 @@ class PatchEmbed3D(nn.Module):
         self.proj = nn.Conv3d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
 
         if norm_layer is not None:
-
             self.norm = norm_layer(embed_dim)
 
         else:
@@ -1632,7 +1630,7 @@ class SwinTransformerSys3D(nn.Module):
                 depths_decoder, drop_path_rate, num_classes, embed_dim, window_size))
 
 
-
+        norm_layer = getattr(nn, norm_layer)
         self.pretrained = pretrained
 
         self.pretrained2d = pretrained2d

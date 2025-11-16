@@ -109,8 +109,6 @@ def get_model(args):
             )
             return model
 
-
-            
         elif args.model.model_name == 'segformer3d':
             from .three_d.segformer.segformer import build_segformer3d_model
 
@@ -136,6 +134,9 @@ def get_model(args):
                         depths=args.model.depths,
                         feat_size=args.model.feat_size,)
 
+
+
+
         elif args.model.model_name == 'slim_unetr':
             from .three_d.slim_unetr.SlimUNETR import SlimUNETR
             return SlimUNETR(in_channels=args.model.in_channels,
@@ -148,6 +149,54 @@ def get_model(args):
                         r=args.model.r,
                         dropout=args.model.dropout,
                         )
+        
+        elif args.model.model_name == 'VTUNET':
+            from .three_d.VTUNET.vtunet import SwinTransformerSys3D
+            if args.model.pretrained:
+                model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
+                                            patch_size=args.model.patch_size,
+                                            in_chans=args.model.in_channels,
+                                            num_classes=args.model.out_channels,
+                                            embed_dim=args.model.embed_dim,
+                                            depths=args.model.depths,
+                                            depths_decoder=args.model.depths_decoder,
+                                            num_heads=args.model.num_heads,
+                                            window_size=args.model.window_size,
+                                            mlp_ratio=args.model.mlp_ratio,
+                                            qkv_bias=args.model.qkv_bias,
+                                            qk_scale=args.model.qk_scale,
+                                            drop_rate=args.model.drop_rate,
+                                            attn_drop_rate=args.model.attn_drop_rate,
+                                            drop_path_rate=args.model.drop_path_rate,
+                                            norm_layer=args.model.norm_layer,
+                                            patch_norm=args.model.patch_norm,
+                                            use_checkpoint=args.model.use_checkpoint,
+                                            frozen_stages=args.model.frozen_stages,
+                                            final_upsample=args.model.final_upsample)
+                model.load_state_dict(torch.load(args.model.pretrained_weights))
+            else:
+                model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
+                                            patch_size=args.model.patch_size,
+                                            in_chans=args.model.in_channels,
+                                            num_classes=args.model.out_channels,
+                                            embed_dim=args.model.embed_dim,
+                                            depths=args.model.depths,
+                                            depths_decoder=args.model.depths_decoder,
+                                            num_heads=args.model.num_heads,
+                                            window_size=args.model.window_size,
+                                            mlp_ratio=args.model.mlp_ratio,
+                                            qkv_bias=args.model.qkv_bias,
+                                            qk_scale=args.model.qk_scale,
+                                            drop_rate=args.model.drop_rate,
+                                            attn_drop_rate=args.model.attn_drop_rate,
+                                            drop_path_rate=args.model.drop_path_rate,
+                                            norm_layer=args.model.norm_layer,
+                                            patch_norm=args.model.patch_norm,
+                                            use_checkpoint=args.model.use_checkpoint,
+                                            frozen_stages=args.model.frozen_stages,
+                                            final_upsample=args.model.final_upsample)
+            return model
+
         elif args.model.model_name == 'EfficientMedNeXt_T':
             from .three_d.MedNeXt.mednextv1.create_efficient_mednext import create_efficient_mednext
             return create_efficient_mednext(
@@ -348,56 +397,9 @@ def get_model(args):
 
 
             
-        elif args.model == 'vtunet':
-            from .three_d.VTUNET.vtunet import SwinTransformerSys3D
-            model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
-                                            patch_size=args.model.patch_size,
-                                            in_chans=args.model.in_channels,
-                                            num_classes=args.model.out_channels,
-                                            embed_dim=args.model.embed_dim,
-                                            depths=args.model.depths,
-                                            depths_decoder=args.model.depths_decoder,
-                                            num_heads=args.model.num_heads,
-                                            window_size=args.model.window_size,
-                                            mlp_ratio=args.model.mlp_ratio,
-                                            qkv_bias=args.model.qkv_bias,
-                                            qk_scale=args.model.qk_scale,
-                                            drop_rate=args.model.drop_rate,
-                                            attn_drop_rate=args.model.attn_drop_rate,
-                                            drop_path_rate=args.model.drop_path_rate,
-                                            norm_layer=args.model.norm_layer,
-                                            patch_norm=args.model.patch_norm,
-                                            use_checkpoint=args.model.use_checkpoint,
-                                            frozen_stages=args.model.frozen_stages,
-                                            final_upsample=args.model.final_upsample)
-            return model
 
-        elif args.model == 'vtunet_pretrain':
-            from .three_d.VTUNET.vtunet import SwinTransformerSys3D
-            model = SwinTransformerSys3D(img_size=args.dataset.patch_size,
-                                            patch_size=args.model.patch_size,
-                                            in_chans=args.model.in_channels,
-                                            num_classes=args.model.out_channels,
-                                            embed_dim=args.model.embed_dim,
-                                            depths=args.model.depths,
-                                            depths_decoder=args.model.depths_decoder,
-                                            num_heads=args.model.num_heads,
-                                            window_size=args.model.window_size,
-                                            mlp_ratio=args.model.mlp_ratio,
-                                            qkv_bias=args.model.qkv_bias,
-                                            qk_scale=args.model.qk_scale,
-                                            drop_rate=args.model.drop_rate,
-                                            attn_drop_rate=args.model.attn_drop_rate,
-                                            drop_path_rate=args.model.drop_path_rate,
-                                            norm_layer=args.model.norm_layer,
-                                            patch_norm=args.model.patch_norm,
-                                            use_checkpoint=args.model.use_checkpoint,
-                                            frozen_stages=args.model.frozen_stages,
-                                            final_upsample=args.model.final_upsample)
-            model.load_state_dict(torch.load(args.mdoel.pretrained_weights))
 
-            # TODO https://github.com/yhygao/CBIM-Medical-Image-Segmentation/blob/main/model/dim3/vtunet.py
-            return model
+
 
 
     else:
