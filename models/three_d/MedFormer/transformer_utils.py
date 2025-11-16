@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .utils import BasicBlock, Bottleneck, ConvNormAct, DepthwiseSeparableConv, MBConv, FusedMBConv
-from .transformer_utils import TransformerBlock, LayerNorm
+from models.three_d.MedFormer.utils import BasicBlock, Bottleneck, ConvNormAct, DepthwiseSeparableConv, MBConv, FusedMBConv
+import importlib
+from models.three_d.MedFormer.trans_layers import TransformerBlock, LayerNorm
 
 from einops import rearrange
 import pdb

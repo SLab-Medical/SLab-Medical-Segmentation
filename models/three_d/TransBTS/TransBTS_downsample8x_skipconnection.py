@@ -72,7 +72,7 @@ class TransformerBTS(nn.Module):
                 padding=1
             )
 
-        self.Unet = Unet(in_channels=1, base_channels=16, num_classes=num_classes)
+        self.Unet = Unet(in_channels=num_channels, base_channels=16, num_classes=num_classes)
         self.bn = nn.BatchNorm3d(128)
         self.relu = nn.ReLU(inplace=True)
 
@@ -318,7 +318,18 @@ class DeBlock(nn.Module):
 
 
 
-def TransBTS(num_classes=2, num_channels=1, img_dim=96, _conv_repr=True, _pe_type="learned"):
+def TransBTS(num_channels=2, 
+             num_classes=1, 
+             img_dim=96, 
+             patch_dim=8,
+             embedding_dim=512,
+             num_heads=8,
+             num_layers=4,
+             hidden_dim=4096,
+             dropout_rate=0.1,
+             attn_dropout_rate=0.1,
+             _conv_repr=True, 
+             _pe_type="learned"):
 
     '''
     if dataset.lower() == 'feta':
@@ -369,6 +380,7 @@ def TransBTS(num_classes=2, num_channels=1, img_dim=96, _conv_repr=True, _pe_typ
         num_classes = 3
 
     '''
+    print(num_channels)
     print(num_classes)
 
     patch_dim = 8
@@ -378,12 +390,12 @@ def TransBTS(num_classes=2, num_channels=1, img_dim=96, _conv_repr=True, _pe_typ
         patch_dim,
         num_channels,
         num_classes,
-        embedding_dim=512,
-        num_heads=8,
-        num_layers=4,
-        hidden_dim=4096,
-        dropout_rate=0.1,
-        attn_dropout_rate=0.1,
+        embedding_dim=embedding_dim,
+        num_heads=num_heads,
+        num_layers=num_layers,
+        hidden_dim=hidden_dim,
+        dropout_rate=dropout_rate,
+        attn_dropout_rate=attn_dropout_rate,
         conv_patch_representation=_conv_repr,
         positional_encoding_type=_pe_type,
     )

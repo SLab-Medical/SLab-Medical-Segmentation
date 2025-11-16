@@ -28,7 +28,7 @@ class TrainOptions():
         dataset.add_argument("--drop_last", type=bool, default=True, help="drop_last")
         dataset.add_argument("--queue_length", type=int, default=5, help="queue_length")
         dataset.add_argument("--samples_per_volume", type=int, default=5, help="samples_per_volume")
-        dataset.add_argument("--patch_size", nargs='+', type=int, default=[64, 64, 64], help="patch_size")
+        dataset.add_argument("--patch_size", nargs='+', type=int, default=[96, 96, 96], help="patch_size")
                            
         
         # Experiment Options

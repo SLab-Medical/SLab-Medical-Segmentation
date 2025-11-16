@@ -30,25 +30,24 @@ Support networks:
 * [SegMamba](https://arxiv.org/pdf/2401.13560) (ICCV2025, [code](https://github.com/ge-xing/SegMamba))
 * [Slim-UNETR](https://ieeexplore.ieee.org/document/10288609) (TMI 2023, [code](https://github.com/deepang-ai/Slim-UNETR)) 
 * vtunet
-
+* attention_unet
+* SwinUNETR
+* unet++
+* [3DUXNET](https://arxiv.org/abs/2209.15076) (ICLR2023, [code](https://github.com/MASILab/3DUX-Net))
+* nnFormer
+* [EfficientMedNext](https://papers.miccai.org/miccai-2025/0280-Paper4895.html) (MICCAI2025, [code](https://github.com/SLDGroup/EfficientMedNeXt))
+* nnUnet
+* vnet
+* medformer
 
 ----
 
 
-* [EfficientMedNext](https://papers.miccai.org/miccai-2025/0280-Paper4895.html) (MICCAI2025, [code](https://github.com/SLDGroup/EfficientMedNeXt))
-* [3DUXNET](https://arxiv.org/abs/2209.15076) (ICLR2023, [code](https://github.com/MASILab/3DUX-Net))
 * [TransBTS](https://arxiv.org/abs/2103.04430) (MICCAI2021, [code](https://github.com/Rubics-Xuan/TransBTS))
-* nnFormer
-* nnUnet
-* SwinUNETR
-* vnet
-* unet++
-* attention_unet
-* medformer
+
 
 
 Support dataset:
-* 
 * 
 
 ## Installation

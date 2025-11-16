@@ -14,10 +14,10 @@
 
 
 import torch
-from nnunet.network_architecture.custom_modules.conv_blocks import StackedConvLayers
-from nnunet.network_architecture.generic_UNet import Upsample
-from nnunet.network_architecture.neural_network import SegmentationNetwork
-from nnunet.training.loss_functions.dice_loss import DC_and_CE_loss
+from models.three_d.nnunet.network_architecture.custom_modules.conv_blocks import StackedConvLayers
+from models.three_d.nnunet.network_architecture.generic_UNet import Upsample
+from models.three_d.nnunet.network_architecture.neural_network import SegmentationNetwork
+from models.three_d.nnunet.training.loss_functions.dice_loss import DC_and_CE_loss
 from torch import nn
 import numpy as np
 from torch.optim import SGD

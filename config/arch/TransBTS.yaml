@@ -13,3 +13,5 @@ model:
   attn_dropout_rate: 0.1
   _conv_repr: True
   _pe_type: 'learned'
+
+  pretrained_weights: False

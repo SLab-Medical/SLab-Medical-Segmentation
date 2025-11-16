@@ -15,8 +15,8 @@
 
 import numpy as np
 from batchgenerators.augmentations.utils import pad_nd_image
-from networks.nnunet.utilities.random_stuff import no_op
-from networks.nnunet.utilities.to_torch import to_cuda, maybe_to_torch
+from models.three_d.nnunet.utilities.random_stuff import no_op
+from models.three_d.nnunet.utilities.to_torch import to_cuda, maybe_to_torch
 from torch import nn
 import torch
 from scipy.ndimage.filters import gaussian_filter

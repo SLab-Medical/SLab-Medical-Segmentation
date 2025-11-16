@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .utils import get_block, get_norm, get_act
-from .transformer_utils import down_block, up_block, inconv, SemanticMapFusion
+from models.three_d.MedFormer.utils import get_block, get_norm, get_act
+from models.three_d.MedFormer.transformer_utils import down_block, up_block, inconv, SemanticMapFusion
 import pdb
 
 

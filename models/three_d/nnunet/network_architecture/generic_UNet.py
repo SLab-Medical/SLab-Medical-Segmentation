@@ -14,12 +14,12 @@
 
 
 from copy import deepcopy
-from networks.nnunet.utilities.nd_softmax import softmax_helper
+from models.three_d.nnunet.utilities.nd_softmax import softmax_helper
 from torch import nn
 import torch
 import numpy as np
-from networks.nnunet.network_architecture.initialization import InitWeights_He
-from networks.nnunet.network_architecture.neural_network import SegmentationNetwork
+from models.three_d.nnunet.network_architecture.initialization import InitWeights_He
+from models.three_d.nnunet.network_architecture.neural_network import SegmentationNetwork
 import torch.nn.functional
 
 

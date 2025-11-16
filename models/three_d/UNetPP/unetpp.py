@@ -13,8 +13,8 @@ class UNetPlusPlus(nn.Module):
 
         n_ch = [base_ch, base_ch*2, base_ch*4, base_ch*8, base_ch*16]
     
-        self.pool = nn.MaxPool2d(2, 2)
-        self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.pool = nn.MaxPool3d(2, 2)
+        self.up = nn.Upsample(scale_factor=2, mode='trilinear', align_corners=True)
 
 
         self.conv0_0 = self.make_layer(in_ch, n_ch[0], num_block, block)
@@ -38,7 +38,7 @@ class UNetPlusPlus(nn.Module):
         self.conv0_4 = self.make_layer(n_ch[0]*4+n_ch[1], n_ch[0], num_block, block)
 
 
-        self.output = nn.Conv2d(n_ch[0], num_classes, kernel_size=1)
+        self.output = nn.Conv3d(n_ch[0], num_classes, kernel_size=1)
 
 
     def forward(self, x):

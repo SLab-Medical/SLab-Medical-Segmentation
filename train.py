@@ -196,6 +196,13 @@ def train(args):
                 result = model(img)
                 if isinstance(result, (list, tuple)):
                     result = result[0]
+                if result.shape[2:] != label.shape[2:]:
+                    result = F.interpolate(
+                        result,
+                        size=label.shape[2:],
+                        mode="trilinear",
+                        align_corners=False,
+                    )
                 loss = loss_fn(result, label)
 
                 accelerator.backward(loss)
@@ -248,7 +255,7 @@ def train(args):
             if epoch % args.experiment.save_every_epochs == 0:
                 accelerator.save_state(os.path.join(args.experiment.log_path, 'checkpoint', f"checkpoint_{epoch:04d}.pt"), safe_serialization=False)
                 if args.ema_group.ema:
-                    torch.save(temp_ema_model.module, os.path.join(args.experiment.log_path, 'ema', f"checkpoint_{epoch:04d}.pt"))
+                    torch.save(temp_ema_model.module.state_dict(), os.path.join(args.experiment.log_path, 'ema', f"checkpoint_{epoch:04d}.pt"))
 
             
 

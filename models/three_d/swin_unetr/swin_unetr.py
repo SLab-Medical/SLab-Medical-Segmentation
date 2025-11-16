@@ -53,13 +53,13 @@ class SwinUNETR(nn.Module):
 
     patch_size: Final[int] = 2
 
-    @deprecated_arg(
-        name="img_size",
-        since="1.3",
-        removed="1.5",
-        msg_suffix="The img_size argument is not required anymore and "
-        "checks on the input size are run during forward().",
-    )
+    # @deprecated_arg(
+    #     name="img_size",
+    #     since="1.3",
+    #     removed="1.5",
+    #     msg_suffix="The img_size argument is not required anymore and "
+    #     "checks on the input size are run during forward().",
+    # )
     def __init__(
         self,
         img_size: Sequence[int] | int,

@@ -15,11 +15,11 @@
 
 import numpy as np
 import torch
-from nnunet.network_architecture.custom_modules.conv_blocks import BasicResidualBlock, ResidualLayer
-from nnunet.network_architecture.generic_UNet import Upsample
-from nnunet.network_architecture.generic_modular_UNet import PlainConvUNetDecoder, get_default_network_config
-from nnunet.network_architecture.neural_network import SegmentationNetwork
-from nnunet.training.loss_functions.dice_loss import DC_and_CE_loss
+from models.three_d.nnunet.network_architecture.custom_modules.conv_blocks import BasicResidualBlock, ResidualLayer
+from models.three_d.nnunet.network_architecture.generic_UNet import Upsample
+from models.three_d.nnunet.network_architecture.generic_modular_UNet import PlainConvUNetDecoder, get_default_network_config
+from models.three_d.nnunet.network_architecture.neural_network import SegmentationNetwork
+from models.three_d.nnunet.training.loss_functions.dice_loss import DC_and_CE_loss
 from torch import nn
 from torch.optim import SGD
 from torch.backends import cudnn

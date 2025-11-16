@@ -1,5 +1,5 @@
 model:
-  model_name: UNetPP
+  model_name: AttentionUnet
   dimension: 3d
 
   in_channels: 1

@@ -10,7 +10,8 @@ model:
   layer_scale_init_value: 1e-6
   spatial_dims: 3
 
-
+  pretrained_weights: False # or path to pretrained model
+  pretrain_classes: 5
 
 
 
