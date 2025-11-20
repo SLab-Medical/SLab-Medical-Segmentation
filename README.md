@@ -1,9 +1,9 @@
 # SLab Medical Segmentation (SMS)
 
-A general medical segmentation toolkit developed by the SLab team, led by Prof. Shuang Song.
+A advanced and general medical segmentation toolkit developed by the SLab team, led by Prof. Shuang Song.
 
 ## :rocket: News
-* **(2025.10.16):** The first version of SLab Medical Segmentation (SMS) repo are released.
+* **(2025.11.20):** The first version of SLab Medical Segmentation (SMS) repo are released.
 
 
 ## Table of Contents
@@ -16,7 +16,8 @@ Follow steps 1-3 to run our toolkit.
 4. [Visualization](#Visualization)
 5. [Results](#Results)
 6. [To Do List](#TODO)
-7. [Acknowledgements](#Acknowledgements)
+7. [By The Way](#By-The-Way)
+8. [Acknowledgements](#Acknowledgements)
 
 ## Introduction
 
@@ -51,17 +52,19 @@ Support dataset:
 
 ## Installation
 
+```
 conda create -n slab_med_seg python=3.10
 conda activate slab_med_seg
 pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt
+```
 
 ## Prepare the Dataset
 
 
 ## Run the Experiment
 ```
-python train.py --dataset_name your_dataset_name \
+ train.py --dataset_name your_dataset_name \
                 --dataset_path your_dataset_path \
                 --batch 4 \
                 --num_workers 4 \
@@ -75,16 +78,19 @@ python train.py --dataset_name your_dataset_name \
                 --loss_type combine 
 ```
 ## Results 
-We benchmark SLab Medical Segmentation (SMS) both qualitatively and quantitatively against the current state-of-the-art models such as xx and several other models on three widely used medical datasets: BRaTs2017, xxx
+We benchmark SLab Medical Segmentation (SMS) both qualitatively and quantitatively against the current state-of-the-art models such as MedNeXt and several other models on three widely used medical datasets: BRaTs2017.
 
 
 ### Brain Tumor Segmentation Dataset (BraTs)
-
+Stay tuned!
 
 
 ## TODO
-* pretrained finetuning
+* More datasets
 
+## By The Way
+If you're using this project and have feedback, feel free to contact Kangneng Zhou via WeChat (kangkangellis666) or email (elliszkn@163.com).
 
 ## Acknowledgements
-* https://github.com/yhygao/CBIM-Medical-Image-Segmentation
+This repository offers advanced and general medical segmentation in 3D and 2D. The project was completed under the supervision of Prof. Shuang Song and Kangneng Zhou. Special thanks to Haoyu Yuan, Dian Song, Jingdan Zhang, Yihang Xu and Sibo Zhao for their invaluable support.
+
