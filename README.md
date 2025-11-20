@@ -3,7 +3,7 @@
 A advanced and general medical segmentation toolkit developed by the SLab team, led by Prof. Shuang Song.
 
 ## :rocket: News
-* **(2025.11.20):** The first version of SLab Medical Segmentation (SMS) repo are released.
+* **(2025.11.20):** What a beautiful day! The first version of the SLab Medical Segmentation (SMS) repository has been released.
 
 
 ## Table of Contents
