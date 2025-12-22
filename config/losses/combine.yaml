@@ -4,19 +4,19 @@ loss_group:
     - type: dice
       params:
         include_background: true
-        to_onehot_y: true
-        sigmoid: false
-        softmax: true
+        # sigmoid/softmax/to_onehot_y will be auto-adjusted based on num_classes
+        # binary (out_channels=1): sigmoid=True, softmax=False, to_onehot_y=False
+        # multi-class (out_channels>1): sigmoid=False, softmax=True, to_onehot_y=True
         squared_pred: false
         jaccard: false
         smooth_nr: 0.00001
         smooth_dr: 0.00001
-        weight: null
+        reduction: 'mean'
     - type: focal
       params:
         include_background: true
-        to_onehot_y: true
+        # sigmoid/softmax/to_onehot_y will be auto-adjusted based on num_classes
         alpha: 0.25
         gamma: 2.0
-        weight: null
-  balanced_weights: [1,1]  
+        reduction: 'mean'
+  balanced_weights: [1.0, 1.0]

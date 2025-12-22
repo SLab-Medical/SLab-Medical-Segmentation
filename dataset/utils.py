@@ -16,3 +16,8 @@ def build_dataset(args, mode):
         from .brat import Brat
 
         return Brat(args.dataset)
+
+    elif args.dataset.dataset_name == 'dsa':
+        from .dsa import DSAWithTorchio
+
+        return DSAWithTorchio(args.dataset, mode=mode)

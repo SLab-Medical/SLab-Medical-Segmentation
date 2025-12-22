@@ -32,3 +32,15 @@ python train.py --dataset_name your_dataset_name \
                 --in_channels 1 \
                 --out_channels 3 \
                 --loss_type combine 
+
+
+python train.py \
+    --dataset_name dsa \
+    --dataset_path data/data_2d/DSA \
+    --model_name unet_2d \
+    --dimension 2d \
+    --in_channels 1 \
+    --out_channels 1 \
+    --batch 4 \
+    --num_epochs 100 \
+    --expname dsa_unet_2d

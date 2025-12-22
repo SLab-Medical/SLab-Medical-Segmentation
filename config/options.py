@@ -116,7 +116,10 @@ class TrainOptions():
                 m_she = munchify(sche_config)
                 self.opt = merge_munch(m_she, self.opt)
             elif title == 'model':
-                arch_config_path = 'config/arch/%s.yaml'%(self.opt[title]['model_name'])
+                # Select subfolder based on dimension (2d -> two_d, 3d -> three_d)
+                dimension = self.opt[title].get('dimension', '3d')
+                dim_folder = 'two_d' if dimension == '2d' else 'three_d'
+                arch_config_path = 'config/arch/%s/%s.yaml'%(dim_folder, self.opt[title]['model_name'])
                 with open(arch_config_path, 'r') as f:
                     arch_config = yaml.load(f, Loader=yaml.SafeLoader)
                 # for key, value in arch_config.items():

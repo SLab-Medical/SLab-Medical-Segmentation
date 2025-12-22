@@ -1,0 +1,23 @@
+# Binary Segmentation Loss Configuration for 2D images
+loss_group:
+  loss_type: combined
+  configs:
+    - type: dice
+      params:
+        include_background: true
+        to_onehot_y: false  # Binary segmentation, no need to convert to one-hot
+        sigmoid: true       # Use sigmoid for binary classification
+        softmax: false      # Don't use softmax for binary
+        squared_pred: false
+        jaccard: false
+        smooth_nr: 1e-5
+        smooth_dr: 1e-5
+        reduction: 'mean'
+    - type: focal
+      params:
+        include_background: true
+        to_onehot_y: false  # Binary segmentation
+        alpha: 0.25
+        gamma: 2.0
+        reduction: 'mean'
+  balanced_weights: [1.0, 1.0]  # Equal weight for dice and focal loss

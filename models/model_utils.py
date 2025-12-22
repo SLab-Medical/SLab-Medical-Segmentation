@@ -5,66 +5,52 @@ import pdb
 from monai.networks.blocks import UnetOutBlock
 
 def get_model(args):
-    
+
     if args.model.dimension == '2d':
-        if args.model == 'unet':
-            from .dim2 import UNet
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return UNet(args.in_chan, args.classes, args.base_chan, block=args.block)
-        if args.model == 'unet++':
-            from .dim2 import UNetPlusPlus
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return UNetPlusPlus(args.in_chan, args.classes, args.base_chan)
-        if args.model == 'attention_unet':
-            from .dim2 import AttentionUNet
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return AttentionUNet(args.in_chan, args.classes, args.base_chan)
+        # 2D Models
+        if args.model.model_name == 'unet_2d':
+            from .two_d.unet import Unet
+            return Unet(in_channels=args.model.in_channels,
+                       classes=args.model.out_channels)
 
-        elif args.model == 'resunet':
-            from .dim2 import UNet 
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return UNet(args.in_chan, args.classes, args.base_chan, block=args.block)
-        elif args.model == 'daunet':
-            from .dim2 import DAUNet
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return DAUNet(args.in_chan, args.classes, args.base_chan, block=args.block)
+        elif args.model.model_name == 'unetpp':
+            from .two_d.unetpp import ResNet34UnetPlus
+            return ResNet34UnetPlus(num_channels=args.model.in_channels,
+                                   num_class=args.model.out_channels)
 
-        elif args.model in ['medformer']:
-            from .dim2 import MedFormer
-            if pretrain:
-                raise ValueError('No pretrain model available')
-            return MedFormer(args.in_chan, args.classes, args.base_chan, conv_block=args.conv_block, conv_num=args.conv_num, trans_num=args.trans_num, num_heads=args.num_heads, fusion_depth=args.fusion_depth, fusion_dim=args.fusion_dim, fusion_heads=args.fusion_heads, map_size=args.map_size, proj_type=args.proj_type, act=nn.ReLU, expansion=args.expansion, attn_drop=args.attn_drop, proj_drop=args.proj_drop, aux_loss=args.aux_loss)
+        elif args.model.model_name == 'deeplab':
+            from .two_d.deeplab import DeepLabV3
+            return DeepLabV3(in_class=args.model.in_channels,
+                           class_num=args.model.out_channels)
 
+        elif args.model.model_name == 'fcn':
+            from .two_d.fcn import FCN32s
+            return FCN32s(in_class=args.model.in_channels,
+                         n_class=args.model.out_channels)
 
-        elif args.model == 'transunet':
-            from .dim2 import VisionTransformer as ViT_seg
-            from .dim2.transunet import CONFIGS as CONFIGS_ViT_seg
-            config_vit = CONFIGS_ViT_seg['R50-ViT-B_16']
-            config_vit.n_classes = args.classes
-            config_vit.n_skip = 3
-            config_vit.patches.grid = (int(args.training_size[0]/16), int(args.training_size[1]/16))
-            net = ViT_seg(config_vit, img_size=args.training_size[0], num_classes=args.classes)
+        elif args.model.model_name == 'segnet':
+            from .two_d.segnet import SegNet
+            return SegNet(input_nbr=args.model.in_channels,
+                         label_nbr=args.model.out_channels)
 
-            if pretrain:
-                net.load_from(weights=np.load(args.init_model))
+        elif args.model.model_name == 'pspnet':
+            from .two_d.pspnet import PSPNet
+            return PSPNet(in_class=args.model.in_channels,
+                         n_classes=args.model.out_channels)
 
-            return net
-        
-        elif args.model == 'swinunet':
-            from .dim2 import SwinUnet
-            from .dim2.swin_unet import SwinUnet_config
-            config = SwinUnet_config()
-            net = SwinUnet(config, img_size=224, num_classes=args.classes)
-            
-            if pretrain:
-                net.load_from(args.init_model)
+        elif args.model.model_name == 'highresnet':
+            from .two_d.highresnet import HighResNet
+            return HighResNet(in_channels=args.model.in_channels,
+                            out_channels=args.model.out_channels,
+                            dimensions=2)
 
-            return net
+        elif args.model.model_name == 'miniseg':
+            from .two_d.miniseg import MiniSeg
+            return MiniSeg(in_input=args.model.in_channels,
+                          classes=args.model.out_channels)
+
+        else:
+            raise ValueError(f'2D model {args.model.model_name} not supported')
 
 
 

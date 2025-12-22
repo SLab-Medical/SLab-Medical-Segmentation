@@ -30,6 +30,8 @@ import matplotlib.pyplot as plt
 from utils.configuration import save_configure
 from utils.resume import resume_load_model_checkpoint, resume_load_optimizer_checkpoint
 from utils.ema import update_ema_variables, update_bn
+from utils.plot_metrics import MetricsPlotter
+from utils.metrics import calculate_metrics
 
 from dataset.utils import build_dataset
 from solver.optim import build_optimizer
@@ -82,7 +84,7 @@ def rebuild_scheduler(args, current_epoch, training_scheduler, warmup_scheduler)
         scheduler = training_scheduler
     return scheduler
 
-def save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration):
+def save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration, is_2d=False):
     os.makedirs(base_dir, exist_ok=True)
     # save only the first item in the batch to limit IO
     img_tensor = batch_inputs['source']['data'][0].detach().cpu().float()
@@ -96,14 +98,31 @@ def save_intermediate_tio(batch_inputs, logits, base_dir, epoch, iteration):
         # binary: sigmoid then threshold
         pred_tensor = (torch.sigmoid(pred_logits) > 0.5).to(torch.int16)
 
-    affine = np.eye(4)
-    img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.nii.gz")
-    gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.nii.gz")
-    pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.nii.gz")
+    if is_2d:
+        # Save as PNG for 2D data
+        from PIL import Image
+        img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.png")
+        gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.png")
+        pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.png")
 
-    tio.ScalarImage(tensor=img_tensor, affine=affine).save(img_path)
-    tio.LabelMap(tensor=lbl_tensor.to(torch.int16), affine=affine).save(gt_path)
-    tio.LabelMap(tensor=pred_tensor, affine=affine).save(pr_path)
+        # Convert tensors to numpy and normalize for visualization
+        img_np = (img_tensor[0].numpy() * 255).astype(np.uint8)
+        gt_np = (lbl_tensor[0].numpy() * 255).astype(np.uint8)
+        pred_np = (pred_tensor[0].numpy() * 255).astype(np.uint8)
+
+        Image.fromarray(img_np).save(img_path)
+        Image.fromarray(gt_np).save(gt_path)
+        Image.fromarray(pred_np).save(pr_path)
+    else:
+        # Save as NIfTI for 3D data
+        affine = np.eye(4)
+        img_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_img.nii.gz")
+        gt_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_gt.nii.gz")
+        pr_path = os.path.join(base_dir, f"epoch{epoch:04d}_iter{iteration:06d}_pred.nii.gz")
+
+        tio.ScalarImage(tensor=img_tensor, affine=affine).save(img_path)
+        tio.LabelMap(tensor=lbl_tensor.to(torch.int16), affine=affine).save(gt_path)
+        tio.LabelMap(tensor=pred_tensor, affine=affine).save(pr_path)
 
 def train(args):
 
@@ -115,23 +134,30 @@ def train(args):
     # Dataset Creation
     trainset = build_dataset(args, mode='train')
     testset = build_dataset(args, mode='test')
-    
-    # trainLoader = data.DataLoader(
-    #     trainset.queue_dataset, 
-    #     batch_size=args.dataset.batch,
-    #     shuffle=True, 
-    #     pin_memory=False, 
-    #     # num_workers=args.dataset.num_workers, 
-    #     # persistent_workers=(args.dataset.num_workers>0)
-    # )
-    # testLoader = data.DataLoader(testset.queue_dataset, 
-    #     batch_size=1, 
-    #     pin_memory=True, 
-    #     shuffle=False, 
-    #     num_workers=0)
-    
-    trainLoader = tio.SubjectsLoader(trainset.queue_dataset, batch_size=args.dataset.batch)
-    testLoader = tio.SubjectsLoader(testset.queue_dataset, batch_size=1)
+
+    # Check if we're using 2D or 3D data
+    is_2d = args.model.dimension == '2d'
+
+    if is_2d:
+        # Use standard DataLoader for 2D data
+        trainLoader = data.DataLoader(
+            trainset.queue_dataset,
+            batch_size=args.dataset.batch,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=args.dataset.num_workers if hasattr(args.dataset, 'num_workers') else 4,
+        )
+        testLoader = data.DataLoader(
+            testset.queue_dataset,
+            batch_size=1,
+            pin_memory=True,
+            shuffle=False,
+            num_workers=0
+        )
+    else:
+        # Use TorchIO SubjectsLoader for 3D data
+        trainLoader = tio.SubjectsLoader(trainset.queue_dataset, batch_size=args.dataset.batch)
+        testLoader = tio.SubjectsLoader(testset.queue_dataset, batch_size=1)
 
     
     logging.info(f"Created Dataset and DataLoader")
@@ -139,6 +165,10 @@ def train(args):
     ################################################################################
     # Initialize tensorboard, optimizer and etc
     writer = SummaryWriter(f"{args.experiment.log_path}")
+
+    # Initialize metrics plotter for real-time visualization
+    plot_dir = os.path.join(args.experiment.log_path, 'plots')
+    plotter = MetricsPlotter(save_dir=plot_dir, window_size=50)
 
     optimizer = build_optimizer(args.optimizer, model)
 
@@ -149,8 +179,10 @@ def train(args):
     training_scheduler = build_training_lr_scheduler(
         args.schedulers, optimizer=optimizer,
     )
-    
-    build_loss = SegmentationLossManager()
+
+    # Create loss function with automatic parameter adjustment based on num_classes
+    num_classes = args.model.out_channels
+    build_loss = SegmentationLossManager(num_classes=num_classes)
     loss_fn = build_loss.create_combined_loss(
         args.loss_group.configs, args.loss_group.balanced_weights
     )
@@ -197,13 +229,25 @@ def train(args):
                 if isinstance(result, (list, tuple)):
                     result = result[0]
                 if result.shape[2:] != label.shape[2:]:
-                    result = F.interpolate(
-                        result,
-                        size=label.shape[2:],
-                        mode="trilinear",
-                        align_corners=False,
-                    )
+                    # Use appropriate interpolation mode based on dimension
+                    if is_2d:
+                        result = F.interpolate(
+                            result,
+                            size=label.shape[2:],
+                            mode="bilinear",
+                            align_corners=False,
+                        )
+                    else:
+                        result = F.interpolate(
+                            result,
+                            size=label.shape[2:],
+                            mode="trilinear",
+                            align_corners=False,
+                        )
                 loss = loss_fn(result, label)
+
+                # Calculate metrics (Dice, IoU) - supports both binary and multi-class
+                metrics = calculate_metrics(result, label, num_classes=num_classes, threshold=0.5)
 
                 accelerator.backward(loss)
                 optimizer.step()
@@ -212,13 +256,35 @@ def train(args):
                     ema_model.update_parameters(model)
 
                 tic = time.time()
-                
+
                 if accelerator.is_main_process:
+                    # Log to tensorboard
                     writer.add_scalar('Train/Loss/total', loss.item(), iteration + 1)
+                    writer.add_scalar('Train/Metrics/dice', metrics['dice'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/iou', metrics['iou'], iteration + 1)
+
                     if hasattr(loss_fn, 'components'):
                         comps = loss_fn.components()
                         for k, v in comps.items():
                             writer.add_scalar(f'Train/Loss/{k}', float(v.item()), iteration + 1)
+
+                    # Update metrics plotter
+                    metric_dict = {
+                        'total_loss': loss.item(),
+                        'dice': metrics['dice'],
+                        'iou': metrics['iou']
+                    }
+                    if hasattr(loss_fn, 'components'):
+                        comps = loss_fn.components()
+                        for k, v in comps.items():
+                            metric_dict[k + '_loss'] = float(v.item())
+
+                    plotter.update(iteration + 1, **metric_dict)
+
+                    # Generate and save plots every 20 iterations
+                    if (iteration + 1) % 20 == 0:
+                        plotter.plot(show_ma=True)
+                        plotter.save_csv()
 
         
         
@@ -227,8 +293,7 @@ def train(args):
 
                 loss_msg = f"Epoch: {epoch+1:03d}/{args.experiment.num_epochs:03d} | \
                             iter: {str(iteration).zfill(6)} | \
-                            total: {loss.item():.5f} | \
-                            lr: {training_scheduler.get_last_lr()[0]:.6e}"
+                            total: {loss.item():.5f}"
                 if hasattr(loss_fn, 'components'):
                     comps = loss_fn.components()
                     comp_str = ' | '.join([f"{k}: {float(v.item()):.5f}" for k, v in comps.items()])
@@ -237,7 +302,7 @@ def train(args):
 
                 if accelerator.is_main_process and (iteration % max(1, args.experiment.vis_every) == 0):
                     inter_dir = os.path.join(args.experiment.log_path, 'intermediate')
-                    save_intermediate_tio(inputs, result, inter_dir, epoch, iteration)
+                    save_intermediate_tio(inputs, result, inter_dir, epoch, iteration, is_2d=is_2d)
 
 
             scheduler.step()
