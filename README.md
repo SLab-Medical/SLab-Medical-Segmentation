@@ -24,20 +24,20 @@ Follow steps 1-3 to run our toolkit.
 
 ### Support 3D Networks:
 
-* Unetr
-* unet
-* unetr_pp
+* [Unetr](https://arxiv.org/abs/2103.10504) (WACV 2022, [code](https://monai.io/research/unetr))
+* [unet](https://arxiv.org/abs/1606.06650) (MICCAI 2016, [code](https://github.com/wolny/pytorch-3dunet))
+* [unetr_pp](https://arxiv.org/abs/2212.04497) (TMI 2024, [code](https://github.com/Amshaker/unetr_plus_plus))
 * [Segformer3D](https://arxiv.org/abs/2404.10156) (CVPR-W 2024, [code](https://github.com/OSUPCVLab/SegFormer3D))
 * [SegMamba](https://arxiv.org/pdf/2401.13560) (ICCV2025, [code](https://github.com/ge-xing/SegMamba))
 * [Slim-UNETR](https://ieeexplore.ieee.org/document/10288609) (TMI 2023, [code](https://github.com/deepang-ai/Slim-UNETR))
-* vtunet
-* attention_unet
+* [vtunet](https://arxiv.org/abs/2111.13300) (MICCAI 2022, [code](https://github.com/himashi92/VT-UNet))
+* [attention_unet](https://arxiv.org/abs/1804.03999) (MIDL 2018, [code](https://github.com/sfczekalski/attention_unet))
 * SwinUNETR
-* unet++
-* [3DUXNET](https://arxiv.org/abs/2209.15076) (ICLR2023, [code](https://github.com/MASILab/3DUX-Net))
+* [unet++](https://arxiv.org/abs/1807.10165) (TMI 2019, [code](https://github.com/MrGiovanni/UNetPlusPlus))
+* [3DUXNET](https://arxiv.org/abs/2209.15076) (ICLR 2023, [code](https://github.com/MASILab/3DUX-Net))
 * nnFormer
-* [EfficientMedNext](https://papers.miccai.org/miccai-2025/0280-Paper4895.html) (MICCAI2025, [code](https://github.com/SLDGroup/EfficientMedNeXt))
-* nnUnet
+* [EfficientMedNext](https://papers.miccai.org/miccai-2025/0280-Paper4895.html) (MICCAI 2025, [code](https://github.com/SLDGroup/EfficientMedNeXt))
+* [nnUnet](https://www.nature.com/articles/s41592-020-01008-z) (Nature Methods 2021, [code](https://github.com/MIC-DKFZ/nnUNet))
 * vnet
 * medformer
 * [TransBTS](https://arxiv.org/abs/2103.04430) (MICCAI2021, [code](https://github.com/Rubics-Xuan/TransBTS))

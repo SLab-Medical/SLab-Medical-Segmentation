@@ -44,3 +44,12 @@ python train.py \
     --batch 4 \
     --num_epochs 100 \
     --expname dsa_unet_2d
+
+python inference.py \
+    --checkpoint_path /opt/data/private/songshuang/med/SS_Seg_advanced/logs/dsa_unet_2d_2025_12_21_121733/checkpoint/checkpoint_0000.pt/pytorch_model.bin \
+    --input_path /opt/data/private/songshuang/med/SS_Seg_advanced/data/data_2d/DSA/test/img \
+    --output_dir results/ \
+    --config /opt/data/private/songshuang/med/SS_Seg_advanced/logs/dsa_unet_2d_2025_12_21_013314/config.yaml \
+    --use_sliding_window \
+    --calculate_metrics \
+    --save_probability

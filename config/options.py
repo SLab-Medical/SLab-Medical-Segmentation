@@ -146,3 +146,14 @@ class TrainOptions():
             m_exp = munchify(exp_config)
             self.opt = merge_munch(m_exp, self.opt)
         return self.opt
+
+    def parse_from_yaml(self, yaml_path):
+        """Load configuration directly from a YAML file"""
+        if not os.path.exists(yaml_path):
+            raise FileNotFoundError(f"Config file not found: {yaml_path}")
+
+        with open(yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+
+        self.opt = munchify(config)
+        return self.opt
