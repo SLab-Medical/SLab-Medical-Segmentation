@@ -246,8 +246,11 @@ def train(args):
                         )
                 loss = loss_fn(result, label)
 
-                # Calculate metrics (Dice, IoU) - supports both binary and multi-class
-                metrics = calculate_metrics(result, label, num_classes=num_classes, threshold=0.5)
+                # Calculate comprehensive metrics - supports both binary and multi-class
+                # Distance metrics (Hausdorff, ASD) are optional as they're computationally expensive
+                include_distance = getattr(args.experiment, 'include_distance_metrics', False)
+                metrics = calculate_metrics(result, label, num_classes=num_classes,
+                                          threshold=0.5, include_distance_metrics=include_distance)
 
                 accelerator.backward(loss)
                 optimizer.step()
@@ -258,22 +261,44 @@ def train(args):
                 tic = time.time()
 
                 if accelerator.is_main_process:
-                    # Log to tensorboard
+                    # Log to tensorboard - Core metrics
                     writer.add_scalar('Train/Loss/total', loss.item(), iteration + 1)
                     writer.add_scalar('Train/Metrics/dice', metrics['dice'], iteration + 1)
                     writer.add_scalar('Train/Metrics/iou', metrics['iou'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/precision', metrics['precision'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/recall', metrics['recall'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/specificity', metrics['specificity'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/f1', metrics['f1'], iteration + 1)
+                    writer.add_scalar('Train/Metrics/accuracy', metrics['accuracy'], iteration + 1)
+
+                    # Log distance metrics if enabled
+                    if include_distance and 'hausdorff_distance' in metrics:
+                        writer.add_scalar('Train/Metrics/hausdorff_distance', metrics['hausdorff_distance'], iteration + 1)
+                    if include_distance and 'avg_surface_distance' in metrics:
+                        writer.add_scalar('Train/Metrics/avg_surface_distance', metrics['avg_surface_distance'], iteration + 1)
 
                     if hasattr(loss_fn, 'components'):
                         comps = loss_fn.components()
                         for k, v in comps.items():
                             writer.add_scalar(f'Train/Loss/{k}', float(v.item()), iteration + 1)
 
-                    # Update metrics plotter
+                    # Update metrics plotter with all metrics
                     metric_dict = {
                         'total_loss': loss.item(),
                         'dice': metrics['dice'],
-                        'iou': metrics['iou']
+                        'iou': metrics['iou'],
+                        'precision': metrics['precision'],
+                        'recall': metrics['recall'],
+                        'specificity': metrics['specificity'],
+                        'f1': metrics['f1'],
+                        'accuracy': metrics['accuracy']
                     }
+                    # Add distance metrics if enabled
+                    if include_distance and 'hausdorff_distance' in metrics:
+                        metric_dict['hausdorff_distance'] = metrics['hausdorff_distance']
+                    if include_distance and 'avg_surface_distance' in metrics:
+                        metric_dict['avg_surface_distance'] = metrics['avg_surface_distance']
+
                     if hasattr(loss_fn, 'components'):
                         comps = loss_fn.components()
                         for k, v in comps.items():
@@ -293,7 +318,10 @@ def train(args):
 
                 loss_msg = f"Epoch: {epoch+1:03d}/{args.experiment.num_epochs:03d} | \
                             iter: {str(iteration).zfill(6)} | \
-                            total: {loss.item():.5f}"
+                            total: {loss.item():.5f} | \
+                            Dice: {metrics['dice']:.4f} | \
+                            IoU: {metrics['iou']:.4f} | \
+                            F1: {metrics['f1']:.4f}"
                 if hasattr(loss_fn, 'components'):
                     comps = loss_fn.components()
                     comp_str = ' | '.join([f"{k}: {float(v.item()):.5f}" for k, v in comps.items()])

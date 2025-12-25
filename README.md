@@ -10,14 +10,15 @@ A advanced and general medical segmentation toolkit developed by the SLab team, 
 Follow steps 1-3 to run our toolkit.
 
 1. [Introduction](#Introduction)
-1. [Installation](#Installation)
-2. [Prepare the Dataset](#Prepare-the-Dataset)
-3. [Run the Experiment](#Run-the-Experiment)
-4. [Visualization](#Visualization)
-5. [Results](#Results)
-6. [To Do List](#TODO)
-7. [By The Way](#By-The-Way)
-8. [Acknowledgements](#Acknowledgements)
+2. [Installation](#Installation)
+3. [Prepare the Dataset](#Prepare-the-Dataset)
+4. [Run the Training](#Run-the-Training)
+5. [Run the Inference](#Run-the-Inference)
+6. [Visualization](#Visualization)
+7. [Results](#Results)
+8. [To Do List](#TODO)
+9. [By The Way](#By-The-Way)
+10. [Acknowledgements](#Acknowledgements)
 
 ## Introduction
 
@@ -66,14 +67,14 @@ Follow steps 1-3 to run our toolkit.
 ```
 conda create -n slab_med_seg python=3.10
 conda activate slab_med_seg
-pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cu118
+pip install torch torchvision
 pip install -r requirements.txt
 ```
 
 ## Prepare the Dataset
+design your dataloader in dataset
 
-
-## Run the Experiment
+## Run the Training
 
 ### For 3D Models:
 ```bash
@@ -105,10 +106,18 @@ python train.py --dataset_name dsa \
                 --loss_type combine
 ```
 
-**Note:**
-- 2D models use standard PyTorch DataLoader with bilinear interpolation
-- 3D models use TorchIO SubjectsLoader with trilinear interpolation
-- See `README_2D.md` for detailed 2D usage instructions
+## Run the Inference
+```bash
+python inference.py \
+    --checkpoint_path logs/exp/best_model.pth \
+    --input_path data/test/img/ \
+    --output_dir results/ \
+    --config logs/exp/config.yaml \
+    --use_sliding_window \
+    --calculate_metrics \
+    --save_probability
+```
+
 ## Results 
 We benchmark SLab Medical Segmentation (SMS) both qualitatively and quantitatively against the current state-of-the-art models such as MedNeXt and several other models on three widely used medical datasets: BRaTs2017.
 
