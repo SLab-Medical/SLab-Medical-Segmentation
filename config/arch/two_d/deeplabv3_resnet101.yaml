@@ -1,5 +1,5 @@
 model:
-  model_name: fcn_2d
+  model_name: deeplabv3_resnet50
   dimension: 2d
 
   in_channels: 1

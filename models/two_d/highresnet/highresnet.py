@@ -1,31 +1,29 @@
 import torch
 import torch.nn as nn
-import os
 
-from ...utils.dilation import DilationBlock
-from ...utils.convolution import ConvolutionalBlock
+from .dilation import DilationBlock
+from .convolution import ConvolutionalBlock
 
-# copy from https://github.com/fepegar/highresnet, Thank you to [fepegar](https://github.com/fepegar) for your generosity!
 
-__all__ = ['HighResNet', 'HighRes2DNet', 'HighRes3DNet']
+__all__ = ["HighResNet", "HighRes2DNet", "HighRes3DNet"]
 
 
 class HighResNet(nn.Module):
     def __init__(
-            self,
-            in_channels,
-            out_channels,
-            dimensions=None,
-            initial_out_channels_power=4,
-            layers_per_residual_block=2,
-            residual_blocks_per_dilation=3,
-            dilations=3,
-            batch_norm=True,
-            instance_norm=False,
-            residual=True,
-            padding_mode='constant',
-            add_dropout_layer=False,
-            ):
+        self,
+        in_channels,
+        out_channels,
+        dimensions=None,
+        initial_out_channels_power=4,
+        layers_per_residual_block=2,
+        residual_blocks_per_dilation=3,
+        dilations=3,
+        batch_norm=True,
+        instance_norm=False,
+        residual=True,
+        padding_mode="constant",
+        add_dropout_layer=False,
+    ):
         assert dimensions in (2, 3)
         super().__init__()
         self.in_channels = in_channels
@@ -38,7 +36,7 @@ class HighResNet(nn.Module):
         blocks = nn.ModuleList()
 
         # Add first conv layer
-        initial_out_channels = 2 ** initial_out_channels_power
+        initial_out_channels = 2**initial_out_channels_power
         first_conv_block = ConvolutionalBlock(
             in_channels=self.in_channels,
             out_channels=initial_out_channels,
@@ -57,7 +55,7 @@ class HighResNet(nn.Module):
         for dilation_idx in range(dilations):
             if dilation_idx >= 1:
                 in_channels = dilation_block.out_channels
-            dilation = 2 ** dilation_idx
+            dilation = 2**dilation_idx
             dilation_block = DilationBlock(
                 in_channels,
                 out_channels,
@@ -135,24 +133,13 @@ class HighResNet(nn.Module):
         return self.receptive_field * spacing
 
 
-
-
 class HighRes2DNet(HighResNet):
     def __init__(self, *args, **kwargs):
-        kwargs['dimensions'] = 2
+        kwargs["dimensions"] = 2
         super().__init__(*args, **kwargs)
 
 
-
-
-if __name__ == "__main__":
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    image_size = 64
-    x = torch.Tensor(1, 1, image_size, image_size, image_size)
-    x.to(device)
-    print("x size: {}".format(x.size()))
-    
-    model = HighRes3DNet(in_channels=1, out_channels=1)
-    
-    out = model(x)
-    print("out size: {}".format(out.size()))
+class HighRes3DNet(HighResNet):
+    def __init__(self, *args, **kwargs):
+        kwargs["dimensions"] = 3
+        super().__init__(*args, **kwargs)

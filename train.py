@@ -316,17 +316,24 @@ def train(args):
                 iteration += 1
 
 
+                # Print loss information
                 loss_msg = f"Epoch: {epoch+1:03d}/{args.experiment.num_epochs:03d} | \
                             iter: {str(iteration).zfill(6)} | \
-                            total: {loss.item():.5f} | \
-                            Dice: {metrics['dice']:.4f} | \
-                            IoU: {metrics['iou']:.4f} | \
-                            F1: {metrics['f1']:.4f}"
+                            Loss - total: {loss.item():.5f}"
                 if hasattr(loss_fn, 'components'):
                     comps = loss_fn.components()
                     comp_str = ' | '.join([f"{k}: {float(v.item()):.5f}" for k, v in comps.items()])
                     loss_msg = loss_msg + ' | ' + comp_str
                 accelerator.print(loss_msg)
+
+                # Print metrics information (separate line)
+                metrics_msg = f"{'':>46} Metrics - Dice: {metrics['dice']:.4f} | \
+                            IoU: {metrics['iou']:.4f} | \
+                            F1: {metrics['f1']:.4f} | \
+                            Acc: {metrics['accuracy']:.4f} | \
+                            Precision: {metrics['precision']:.4f} | \
+                            Recall: {metrics['recall']:.4f}"
+                accelerator.print(metrics_msg)
 
                 if accelerator.is_main_process and (iteration % max(1, args.experiment.vis_every) == 0):
                     inter_dir = os.path.join(args.experiment.log_path, 'intermediate')

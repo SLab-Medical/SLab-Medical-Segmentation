@@ -1,5 +1,5 @@
 model:
-  model_name: deeplab
+  model_name: deeplabv3_resnet101
   dimension: 2d
 
   in_channels: 1

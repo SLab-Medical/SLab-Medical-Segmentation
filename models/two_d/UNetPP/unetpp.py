@@ -201,12 +201,12 @@ class ResNet34UnetPlus(nn.Module):
 
         x0_0 = x_
         x1_0 = e1
-        print(x0_0.shape, x1_0.shape)  #64 128 128
+        # print(x0_0.shape, x1_0.shape)  #64 128 128
         x0_1 = self.decoder0_1([x0_0, upsize(x1_0)])  # 256 256
 
         x2_0 = e2
         x1_1 = self.decoder1_1([x1_0, upsize(x2_0)])
-        print(x0_0.shape, x0_1.shape, x1_1.shape)
+        # print(x0_0.shape, x0_1.shape, x1_1.shape)
         x0_2 = self.decoder0_2([x0_0, x0_1,  upsize(x1_1)])
 
         x3_0 = e3
@@ -225,7 +225,7 @@ class ResNet34UnetPlus(nn.Module):
         logit2 = self.logit2(x0_2)
         logit3 = self.logit3(x0_3)
         logit4 = self.logit4(x0_4)
-        print(self.mix)
+        # print(self.mix)
         logit = self.mix[1]*logit1 + self.mix[2]*logit2 + self.mix[3]*logit3 + self.mix[4]*logit4
         logit = F.interpolate(logit, size=(H,W), mode='bilinear', align_corners=False)
 

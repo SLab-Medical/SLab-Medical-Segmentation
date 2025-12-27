@@ -7,10 +7,7 @@ import os
 
 import os.path as osp
 
-import fcn
 import numpy as np
-import torch
-import torch.nn as nn
 
 
 # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/surgery.py

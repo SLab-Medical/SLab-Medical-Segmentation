@@ -1,0 +1,27 @@
+model:
+  model_name: swinunet
+  dimension: 2d
+
+  in_channels: 1
+  out_channels: 1
+  patch_size: 4
+  embed_dim: 96
+  depths: [2, 2, 2, 2]
+  depths_decoder: [2, 2, 2, 2]
+  num_heads: [3, 6, 12, 24]
+  window_size: 7
+  mlp_ratio: 4.0
+  qkv_bias: true
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.1
+  norm_layer: LayerNorm
+  patch_norm: true
+  use_checkpoint: false
+  frozen_stages: -1
+  final_upsample: "expand_first"
+
+# IMPORTANT: image_size must match between model and dataset
+dataset:
+  image_size: 224  # Common size for SwinUnet

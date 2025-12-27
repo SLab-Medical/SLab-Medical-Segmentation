@@ -68,6 +68,11 @@ def update_bn(
         if device is not None:
             input = input['source']['data'].to(device)
 
+        # Skip batches with size 1 to avoid BatchNorm issues
+        # BatchNorm requires batch_size > 1 in training mode
+        if input.size(0) <= 1:
+            continue
+
         model(input)
 
     for bn_module in momenta.keys():

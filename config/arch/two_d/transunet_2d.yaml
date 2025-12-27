@@ -1,0 +1,11 @@
+model:
+  model_name: transunet_2d
+  dimension: 2d
+
+  in_channels: 1
+  out_channels: 1
+
+# Note: TransUNet with ResNet50 backbone requires image_size >= 256
+# IMPORTANT: image_size must match between model and dataset
+dataset:
+  image_size: 512  # Recommended: 256, 512, or larger

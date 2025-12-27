@@ -9,46 +9,158 @@ def get_model(args):
     if args.model.dimension == '2d':
         # 2D Models
         if args.model.model_name == 'unet_2d':
-            from .two_d.unet import Unet
+            from .two_d.Unet.unet import Unet
             return Unet(in_channels=args.model.in_channels,
                        classes=args.model.out_channels)
 
-        elif args.model.model_name == 'unetpp':
-            from .two_d.unetpp import ResNet34UnetPlus
+        elif args.model.model_name == 'unetpp_2d':
+            from .two_d.UNetPP.unetpp import ResNet34UnetPlus
             return ResNet34UnetPlus(num_channels=args.model.in_channels,
                                    num_class=args.model.out_channels)
 
-        elif args.model.model_name == 'deeplab':
-            from .two_d.deeplab import DeepLabV3
-            return DeepLabV3(in_class=args.model.in_channels,
-                           class_num=args.model.out_channels)
+        elif args.model.model_name == 'deeplabv3_resnet50':
+            from .two_d.deeplabv3.modeling import deeplabv3_resnet50
+            import torch.nn as local_nn
+            model = deeplabv3_resnet50(num_classes=args.model.out_channels,
+                                     output_stride=8,
+                                     pretrained_backbone=False)
+            # Modify first conv layer for single channel input
+            if args.model.in_channels != 3:
+                model.backbone['conv1'] = local_nn.Conv2d(args.model.in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
+            return model
 
-        elif args.model.model_name == 'fcn':
-            from .two_d.fcn import FCN32s
+        elif args.model.model_name == 'deeplabv3_resnet101':
+            from .two_d.deeplabv3.modeling import deeplabv3_resnet101
+            import torch.nn as local_nn
+            model = deeplabv3_resnet101(num_classes=args.model.out_channels,
+                                      output_stride=8,
+                                      pretrained_backbone=False)
+            # Modify first conv layer for single channel input
+            if args.model.in_channels != 3:
+                model.backbone['conv1'] = local_nn.Conv2d(args.model.in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
+            return model
+
+        elif args.model.model_name == 'fcn_2d':
+            from .two_d.FCN.fcn import FCN32s
             return FCN32s(in_class=args.model.in_channels,
                          n_class=args.model.out_channels)
 
         elif args.model.model_name == 'segnet':
-            from .two_d.segnet import SegNet
+            from .two_d.SegNet.segnet import SegNet
             return SegNet(input_nbr=args.model.in_channels,
                          label_nbr=args.model.out_channels)
 
         elif args.model.model_name == 'pspnet':
-            from .two_d.pspnet import PSPNet
+            from .two_d.PSPNet.pspnet import PSPNet
             return PSPNet(in_class=args.model.in_channels,
                          n_classes=args.model.out_channels)
 
         elif args.model.model_name == 'highresnet':
-            from .two_d.highresnet import HighResNet
+            from .two_d.highresnet.highresnet import HighResNet
             return HighResNet(in_channels=args.model.in_channels,
                             out_channels=args.model.out_channels,
                             dimensions=2)
 
         elif args.model.model_name == 'miniseg':
-            from .two_d.miniseg import MiniSeg
+            from .two_d.MiniSeg.miniseg import MiniSeg
             return MiniSeg(in_input=args.model.in_channels,
                           classes=args.model.out_channels)
 
+        elif args.model.model_name == 'attention_unet_2d':
+            from .two_d.attention_unet.attention_unet import AttentionUNet
+            return AttentionUNet(in_ch=args.model.in_channels,
+                                 num_classes=args.model.out_channels,
+                                 base_ch=args.model.base_chan,
+                                 block=args.model.block)
+        
+        elif args.model.model_name == 'danet_2d':
+            from .two_d.DANet.dual_attention_unet import DAUNet
+            return DAUNet(in_ch=args.model.in_channels,
+                          num_classes=args.model.out_channels,
+                          base_ch=args.model.base_chan,
+                          block=args.model.block)
+
+        elif args.model.model_name == 'transunet_2d':
+            from .two_d.TransUnet.transunet import VisionTransformer, get_r50_b16_config
+            config_vit = get_r50_b16_config()
+            config_vit.n_classes = args.model.out_channels
+            config_vit.n_skip = 3
+
+            # Check for image size in multiple possible locations
+            # Priority: img_size > image_size > patch_size > default 512
+            if hasattr(args.dataset, 'img_size'):
+                img_size = args.dataset.img_size
+            elif hasattr(args.dataset, 'image_size'):
+                img_size = args.dataset.image_size
+            elif hasattr(args.dataset, 'patch_size'):
+                # TransUNet with ResNet50 requires img_size >= 256
+                patch_size_val = args.dataset.patch_size[0] if isinstance(args.dataset.patch_size, (list, tuple)) else args.dataset.patch_size
+                img_size = patch_size_val if patch_size_val >= 256 else 512
+            else:
+                # Default to 512 (common for medical images)
+                img_size = 512
+
+            import logging
+            logging.info(f"TransUNet initialized with img_size={img_size}")
+            net = VisionTransformer(config_vit, img_size=img_size, num_classes=args.model.out_channels)
+            return net
+
+        elif args.model.model_name == 'swinunet_2d':
+            from .two_d.SwinUnet.swin_unet import SwinTransformerSys
+            # Check for image size in multiple possible locations
+            if hasattr(args.dataset, 'img_size'):
+                img_size = args.dataset.img_size
+            elif hasattr(args.dataset, 'image_size'):
+                img_size = args.dataset.image_size
+            elif hasattr(args.dataset, 'patch_size'):
+                # Convert patch_size to integer if it's a list
+                patch_size = args.dataset.patch_size
+                img_size = patch_size[0] if isinstance(patch_size, (list, tuple)) else patch_size
+            else:
+                img_size = 224  # Default for SwinUnet
+
+            # Convert norm_layer string to actual class if needed
+            norm_layer = args.model.norm_layer
+
+            return SwinTransformerSys(img_size=img_size,
+                    patch_size=args.model.patch_size,
+                    in_chans=args.model.in_channels,
+                    num_classes=args.model.out_channels,
+                    embed_dim=args.model.embed_dim,
+                    depths=args.model.depths,
+                    depths_decoder=args.model.depths_decoder,
+                    num_heads=args.model.num_heads,
+                    window_size=args.model.window_size,
+                    mlp_ratio=args.model.mlp_ratio,
+                    qkv_bias=args.model.qkv_bias,
+                    qk_scale=args.model.qk_scale,
+                    drop_rate=args.model.drop_rate,
+                    attn_drop_rate=args.model.attn_drop_rate,
+                    drop_path_rate=args.model.drop_path_rate,
+                    norm_layer=norm_layer,
+                    patch_norm=args.model.patch_norm,
+                    use_checkpoint=args.model.use_checkpoint,
+                    frozen_stages=args.model.frozen_stages,
+                    final_upsample=args.model.final_upsample)
+
+        elif args.model.model_name == 'medformer_2d':
+            from .two_d.medformer.medformer import MedFormer
+            return MedFormer(in_chan=args.model.in_channels,
+                           num_classes=args.model.out_channels,
+                           base_chan=args.model.base_chan,
+                           map_size=args.model.map_size,
+                           conv_block=args.model.conv_block,
+                           conv_num=args.model.conv_num,
+                           trans_num=args.model.trans_num,
+                           num_heads=args.model.num_heads,
+                           fusion_depth=args.model.fusion_depth,
+                           fusion_dim=args.model.fusion_dim,
+                           fusion_heads=args.model.fusion_heads,
+                           expansion=args.model.expansion,
+                           attn_drop=args.model.attn_drop,
+                           proj_drop=args.model.proj_drop,
+                           proj_type=args.model.proj_type)
+        
         else:
             raise ValueError(f'2D model {args.model.model_name} not supported')
 

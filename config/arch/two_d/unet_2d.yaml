@@ -1,5 +1,5 @@
 model:
-  model_name: unet
+  model_name: unet_2d
   dimension: 2d
 
   in_channels: 1

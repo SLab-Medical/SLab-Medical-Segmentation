@@ -1,6 +1,8 @@
 model:
-  model_name: fcn_2d
+  model_name: danet
   dimension: 2d
 
   in_channels: 1
   out_channels: 1
+  base_chan: 64
+  block: BasicBlock

@@ -31,8 +31,15 @@ class DSA(Dataset):
         self.args = args
         self.mode = mode
 
-        # Set image size (use config if available, otherwise default to 512)
-        self.image_size = getattr(args, 'image_size', 512)
+        # Set image size (check multiple possible locations)
+        if hasattr(args, 'image_size'):
+            self.image_size = args.image_size
+        elif hasattr(args, 'img_size'):
+            self.image_size = args.img_size
+        else:
+            self.image_size = 512
+        print(f"DSA dataset initialized with image_size={self.image_size}")
+        print(f"Available args attributes: {dir(args)}")
 
         # Set paths
         if mode == 'train':
